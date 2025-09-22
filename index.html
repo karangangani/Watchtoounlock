@@ -16,12 +16,11 @@
       align-items: center;
       min-height: 100vh;
     }
-    h1 {
-      text-align: center;
-      font-size: 2.5rem;
-      color: #00ff88;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 10px #00ff88;
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1rem;
     }
     .ad-container {
       text-align: center;
@@ -56,7 +55,7 @@
       cursor: pointer;
       width: 100%;
       max-width: 400px;
-      margin: 1rem auto;
+      margin: 0.5rem auto;
       transition: transform 0.2s, background-color 0.3s;
     }
     .btn:hover:not(:disabled) {
@@ -67,6 +66,22 @@
       background-color: #555;
       cursor: not-allowed;
       opacity: 0.6;
+    }
+    .share-btn {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .share-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    .join-btn {
+      background-color: #ff4444;
+      color: #fff;
+    }
+    .join-btn:hover:not(:disabled) {
+      background-color: #cc3333;
+      transform: scale(1.05);
     }
     .info {
       text-align: center;
@@ -82,12 +97,16 @@
   </style>
 </head>
 <body>
-  <h1>Watch Ads - Get Video Link</h1>
+  <!-- Buttons at the Top -->
+  <div class="button-container">
+    <button class="btn share-btn" id="shareBtn">Share with Your Friends</button>
+    <button class="btn join-btn" id="joinBtn">Join Official Channel</button>
+  </div>
 
   <!-- Ad Image with Instruction Text -->
   <div class="ad-container">
-    <h2>Watch 10 Ads to Unlock Video Link</h2>
-    <img src="https://i.ibb.co/YbTFwNj/your-image.jpg" alt="Video Banner" class="ad-image" />
+    <h2>Watch 10 Ads to Unlock full video</h2>
+    <img src="https://via.placeholder.com/600x200" alt="Video Banner" class="ad-image" id="adImage" />
   </div>
 
   <button class="btn" id="watchAd">Watch Ad</button>
@@ -97,21 +116,29 @@
     <p class="countdown" id="countdown">Click the button to watch an ad!</p>
   </div>
 
-  <!-- Monetag SDK with New Zone ID -->
+  <!-- Monetag SDK -->
   <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
 
   <script>
     let adsWatched = parseInt(localStorage.getItem("adsWatched") || "0");
     const totalAdsRequired = 10;
-    const countdownDuration = 5; // 5 seconds between ads
+    const countdownDuration = 15; // 15 seconds between ads
     let countdownTimer;
     let isButtonLocked = false;
 
     // UI Elements
     const watchAdButton = document.getElementById("watchAd");
+    const shareButton = document.getElementById("shareBtn");
+    const joinButton = document.getElementById("joinBtn");
     const watchedCountElement = document.getElementById("watchedCount");
     const countdownElement = document.getElementById("countdown");
+    const adImage = document.getElementById("adImage");
     watchedCountElement.textContent = adsWatched;
+
+    // Check if image loads, show alert if it fails
+    adImage.onerror = () => {
+      alert("Image failed to load. Please check the image URL or upload a new image.");
+    };
 
     // Reward function
     function rewardUser() {
@@ -120,11 +147,11 @@
       watchedCountElement.textContent = adsWatched;
 
       if (adsWatched >= totalAdsRequired) {
-        alert("🎉 You've watched 10 ads! Redirecting to video link...");
+        alert("🎉 You've watched 10 ads! Redirecting to official channel...");
         localStorage.setItem("adsWatched", "0"); // Reset ad count
-        window.location.href = "https://t.me/+ipHVPmlGRS4zOGY1";
+        window.location.href = "https://t.me/+bKHfwO7GUUwxZTA1";
       } else {
-        alert(`🎉 Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} more to unlock the video link!`);
+        alert(`🎉 Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} more to unlock the full video!`);
         startCountdown();
       }
     }
@@ -162,11 +189,26 @@
       });
     }
 
-    // Button click handler
+    // Button click handler for ads
     watchAdButton.onclick = () => {
       if (!isButtonLocked) {
         loadAd();
       }
+    };
+
+    // Share button handler
+    shareButton.onclick = () => {
+      const referralLink = "http://t.me/BUGminerbot";
+      navigator.clipboard.writeText(referralLink).then(() => {
+        alert("Referral link copied to clipboard: " + referralLink);
+      }).catch(() => {
+        alert("Failed to copy link. Please copy manually: " + referralLink);
+      });
+    };
+
+    // Join button handler
+    joinButton.onclick = () => {
+      window.location.href = "https://t.me/+bKHfwO7GUUwxZTA1";
     };
 
     // Initialize button state
@@ -176,4 +218,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
