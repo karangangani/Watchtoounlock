@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Watch Ads - Get Video Link</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+      color: #fff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #00ff88;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 10px #00ff88;
+    }
+    .ad-container {
+      text-align: center;
+      margin: 1rem 0;
+      width: 100%;
+      max-width: 600px;
+    }
+    .ad-container h2 {
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      font-weight: bold;
+    }
+    .ad-image {
+      max-width: 100%;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 3px solid #00ff88;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+      display: block;
+      margin: 0 auto;
+    }
+    .btn {
+      background-color: #00ff88;
+      color: #000;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 100%;
+      max-width: 400px;
+      margin: 1rem auto;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .btn:hover:not(:disabled) {
+      background-color: #00cc70;
+      transform: scale(1.05);
+    }
+    .btn:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .info {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-top: 1rem;
+    }
+    .countdown {
+      font-size: 1.4rem;
+      color: #00ff88;
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Watch Ads - Get Video Link</h1>
+
+  <!-- Ad Image with Instruction Text -->
+  <div class="ad-container">
+    <h2>Watch 10 Ads to Unlock Video Link</h2>
+    <img src="https://i.ibb.co/YbTFwNj/your-image.jpg" alt="Video Banner" class="ad-image" />
+  </div>
+
+  <button class="btn" id="watchAd">Watch Ad</button>
+
+  <div class="info">
+    <p>Ads watched: <span id="watchedCount">0</span>/10</p>
+    <p class="countdown" id="countdown">Click the button to watch an ad!</p>
+  </div>
+
+  <!-- Monetag SDK with New Zone ID -->
+  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+
+  <script>
+    let adsWatched = parseInt(localStorage.getItem("adsWatched") || "0");
+    const totalAdsRequired = 10;
+    const countdownDuration = 5; // 5 seconds between ads
+    let countdownTimer;
+    let isButtonLocked = false;
+
+    // UI Elements
+    const watchAdButton = document.getElementById("watchAd");
+    const watchedCountElement = document.getElementById("watchedCount");
+    const countdownElement = document.getElementById("countdown");
+    watchedCountElement.textContent = adsWatched;
+
+    // Reward function
+    function rewardUser() {
+      adsWatched++;
+      localStorage.setItem("adsWatched", adsWatched);
+      watchedCountElement.textContent = adsWatched;
+
+      if (adsWatched >= totalAdsRequired) {
+        alert("🎉 You've watched 10 ads! Redirecting to video link...");
+        localStorage.setItem("adsWatched", "0"); // Reset ad count
+        window.location.href = "https://t.me/+ipHVPmlGRS4zOGY1";
+      } else {
+        alert(`🎉 Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} more to unlock the video link!`);
+        startCountdown();
+      }
+    }
+
+    // Countdown logic
+    function startCountdown() {
+      let timeLeft = countdownDuration;
+      watchAdButton.disabled = true;
+      isButtonLocked = true;
+      countdownElement.textContent = `Next ad in: ${timeLeft} seconds`;
+
+      clearInterval(countdownTimer); // Clear any existing timer
+      countdownTimer = setInterval(() => {
+        timeLeft--;
+        countdownElement.textContent = `Next ad in: ${timeLeft} seconds`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdownTimer);
+          watchAdButton.disabled = false;
+          isButtonLocked = false;
+          countdownElement.textContent = "Click the button to watch the next ad!";
+        }
+      }, 1000);
+    }
+
+    // Load ad
+    function loadAd() {
+      show_9903296().then(() => {
+        rewardUser();
+      }).catch(() => {
+        alert("Ad failed to load. Try again!");
+        watchAdButton.disabled = false;
+        isButtonLocked = false;
+        countdownElement.textContent = "Click the button to watch the next ad!";
+      });
+    }
+
+    // Button click handler
+    watchAdButton.onclick = () => {
+      if (!isButtonLocked) {
+        loadAd();
+      }
+    };
+
+    // Initialize button state
+    if (adsWatched >= totalAdsRequired) {
+      countdownElement.textContent = "Ready to redirect!";
+      watchAdButton.disabled = true;
+    }
+  </script>
+</body>
+</html>
