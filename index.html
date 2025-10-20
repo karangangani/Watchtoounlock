@@ -8,185 +8,143 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+      background: linear-gradient(135deg, #121212, #232323);
       color: #fff;
-      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      padding: 20px;
     }
-    .button-container { display:flex; flex-direction:column; align-items:center; margin-bottom:1rem; }
-    .ad-container { text-align:center; margin:1rem 0; width:100%; max-width:900px; }
-    .ad-container h2 { font-size:1.6rem; color:#fff; margin-bottom:0.8rem; font-weight:bold; }
-    .ad-image { max-width:100%; width:100%; height:auto; border-radius:12px; border:3px solid #00ff88; box-shadow:0 0 15px rgba(0,255,136,0.25); display:block; margin:0 auto; }
-    .btn { background-color:#00ff88; color:#000; padding:1rem 2rem; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; cursor:pointer; width:100%; max-width:400px; margin:0.5rem auto; transition:transform 0.2s, background-color 0.3s; }
-    .btn:hover:not(:disabled){ background-color:#00cc70; transform:scale(1.03); }
-    .btn:disabled { background-color:#555; cursor:not-allowed; opacity:0.6; }
-    .share-btn { background-color:#007bff; color:#fff; }
-    .join-btn { background-color:#ff4444; color:#fff; }
-    .info { text-align:center; font-size:1.1rem; color:#ccc; margin-top:1rem; }
-    .countdown { font-size:1.2rem; color:#00ff88; margin:0.5rem 0; }
-    /* container for embedded player */
-    .player-wrap { width:100%; max-width:900px; margin-top:1rem; display:none; }
-    .player-iframe { width:100%; height:500px; border:0; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+    h2 { text-align:center; color:#00ff88; }
+    .btn {
+      background:#00ff88; color:#000; font-weight:bold; border:none;
+      padding:1rem 2rem; border-radius:10px; margin:10px; cursor:pointer;
+      width:90%; max-width:400px; transition:all 0.3s;
+    }
+    .btn:hover { transform:scale(1.05); background:#00cc70; }
+    .share-btn { background:#007bff; color:#fff; }
+    .join-btn { background:#ff4444; color:#fff; }
+    .ad-container {
+      text-align:center; width:100%; max-width:900px; margin-top:15px;
+    }
+    .ad-image {
+      width:100%; border-radius:12px; border:2px solid #00ff88;
+      box-shadow:0 0 15px rgba(0,255,136,0.3);
+    }
+    .info { text-align:center; margin-top:15px; color:#ccc; }
+    .countdown { color:#00ff88; }
+    .player-wrap {
+      display:none; width:100%; max-width:900px; margin-top:20px;
+    }
+    .player-iframe {
+      width:100%; height:480px; border:0; border-radius:10px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);
+    }
     @media (max-width:600px){ .player-iframe{ height:300px; } }
     .redirect-link {
-      display:none;
-      margin-top:1rem;
-      font-size:1.1rem;
-      background:#007bff;
-      color:#fff;
-      padding:0.8rem 1.5rem;
-      border-radius:10px;
-      text-decoration:none;
-      font-weight:bold;
-      box-shadow:0 0 10px rgba(0,123,255,0.5);
+      display:none; margin-top:20px; background:#007bff; color:#fff;
+      padding:0.8rem 1.5rem; border-radius:10px; text-decoration:none;
+      font-weight:bold; box-shadow:0 0 10px rgba(0,123,255,0.5);
     }
-    .redirect-link:hover {
-      background:#0056b3;
-    }
+    .redirect-link:hover { background:#0056b3; }
   </style>
 </head>
 <body>
-  <div class="button-container">
-    <button class="btn share-btn" id="shareBtn">Share with Your Friends</button>
-    <button class="btn join-btn" id="joinBtn">Join Official Channel</button>
-  </div>
+  <button class="btn share-btn" id="shareBtn">Share with Your Friends</button>
+  <button class="btn join-btn" id="joinBtn">Join Official Channel</button>
 
-  <div class="ad-container" id="adContainer">
+  <div class="ad-container">
     <h2>Watch 5 Ads to Unlock Full Video</h2>
-    <img src="https://via.placeholder.com/900x300" alt="Video Banner" class="ad-image" id="adImage" />
+    <img src="https://via.placeholder.com/900x300" alt="Ad Banner" class="ad-image" />
   </div>
 
   <button class="btn" id="watchAd">Watch Ad</button>
 
   <div class="info">
     <p>Ads watched: <span id="watchedCount">0</span>/5</p>
-    <p class="countdown" id="countdown">Click the button to watch an ad!</p>
+    <p class="countdown" id="countdown">Click “Watch Ad” to start!</p>
   </div>
 
-  <!-- container for the embedded Drive player (initially hidden) -->
   <div class="player-wrap" id="playerWrap">
-    <h2 style="text-align:center; margin-bottom:0.5rem;">Your Video</h2>
+    <h2>Your Video</h2>
   </div>
 
-  <!-- redirect link (appears after unlocking) -->
-  <a href="https://t.me/+bKHfwO7GUUwxZTA1" target="_blank" class="redirect-link" id="redirectLink">Go to Official Channel 🚀</a>
+  <a href="https://t.me/+bKHfwO7GUUwxZTA1" target="_blank" class="redirect-link" id="redirectLink">Join Official Channel 🚀</a>
 
   <!-- Monetag SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+  <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
   <script>
-    // CONFIG: change this to your Drive preview URL
     const DRIVE_PREVIEW_URL = "https://drive.google.com/uc?export=preview&id=13LwO98gbJTKXMQzTUPiY1gkUNGa2C2_n";
-
-    let adsWatched = parseInt(localStorage.getItem("adsWatched") || "0");
     const totalAdsRequired = 5;
-    const countdownDuration = 2; // seconds between ads
-    let countdownTimer;
-    let isButtonLocked = false;
+    let adsWatched = parseInt(localStorage.getItem("adsWatched") || "0");
+    let isLocked = false, timer;
 
-    // Elements
-    const watchAdButton = document.getElementById("watchAd");
-    const shareButton = document.getElementById("shareBtn");
-    const joinButton = document.getElementById("joinBtn");
-    const watchedCountElement = document.getElementById("watchedCount");
-    const countdownElement = document.getElementById("countdown");
-    const adImage = document.getElementById("adImage");
+    const watchAdBtn = document.getElementById("watchAd");
+    const watchedCount = document.getElementById("watchedCount");
+    const countdown = document.getElementById("countdown");
     const playerWrap = document.getElementById("playerWrap");
     const redirectLink = document.getElementById("redirectLink");
 
-    watchedCountElement.textContent = adsWatched;
+    watchedCount.textContent = adsWatched;
 
-    adImage.onerror = () => {
-      alert("Image failed to load. Please check the image URL or upload a new image.");
-    };
-
-    function showEmbeddedPlayer() {
-      if (playerWrap.style.display === "block") return;
-
+    function showVideo(){
+      if(playerWrap.style.display === "block") return;
       const iframe = document.createElement("iframe");
-      iframe.className = "player-iframe";
       iframe.src = DRIVE_PREVIEW_URL;
+      iframe.className = "player-iframe";
       iframe.allow = "autoplay; encrypted-media; fullscreen";
-      iframe.setAttribute("allowfullscreen", "");
-
-      playerWrap.innerHTML = "<h2 style='text-align:center; margin-bottom:0.5rem;'>Your Video</h2>";
+      iframe.setAttribute("allowfullscreen","");
       playerWrap.appendChild(iframe);
       playerWrap.style.display = "block";
-
       redirectLink.style.display = "inline-block";
-      iframe.scrollIntoView({ behavior: "smooth", block: "center" });
+      iframe.scrollIntoView({behavior:"smooth"});
     }
 
-    function rewardUser() {
+    function startCooldown(){
+      let sec = 2;
+      isLocked = true;
+      watchAdBtn.disabled = true;
+      countdown.textContent = `Next ad in ${sec}s...`;
+      timer = setInterval(()=>{
+        sec--;
+        countdown.textContent = sec>0 ? `Next ad in ${sec}s...` : "Click to watch next ad!";
+        if(sec<=0){ clearInterval(timer); isLocked=false; watchAdBtn.disabled=false; }
+      },1000);
+    }
+
+    function reward(){
       adsWatched++;
       localStorage.setItem("adsWatched", adsWatched);
-      watchedCountElement.textContent = adsWatched;
-
-      if (adsWatched >= totalAdsRequired) {
-        alert("🎉 You've watched 5 ads! Unlocking the video...");
-        localStorage.setItem("adsWatched", "0");
-        showEmbeddedPlayer();
+      watchedCount.textContent = adsWatched;
+      if(adsWatched >= totalAdsRequired){
+        alert("🎉 You’ve unlocked the video!");
+        localStorage.setItem("adsWatched","0");
+        showVideo();
       } else {
-        alert(`🎉 Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} more to unlock the video!`);
-        startCountdown();
+        alert(`Ad ${adsWatched}/5 watched. Keep going!`);
+        startCooldown();
       }
     }
 
-    function startCountdown() {
-      let timeLeft = countdownDuration;
-      watchAdButton.disabled = true;
-      isButtonLocked = true;
-      countdownElement.textContent = `Next ad in: ${timeLeft} seconds`;
-
-      clearInterval(countdownTimer);
-      countdownTimer = setInterval(() => {
-        timeLeft--;
-        countdownElement.textContent = `Next ad in: ${timeLeft} seconds`;
-        if (timeLeft <= 0) {
-          clearInterval(countdownTimer);
-          watchAdButton.disabled = false;
-          isButtonLocked = false;
-          countdownElement.textContent = "Click the button to watch the next ad!";
-        }
-      }, 1000);
-    }
-
-    function loadAd() {
-      show_9903296().then(() => {
-        rewardUser();
-      }).catch(() => {
+    watchAdBtn.onclick = ()=>{
+      if(isLocked) return;
+      show_9903296().then(reward).catch(()=>{
         alert("Ad failed to load. Try again!");
-        watchAdButton.disabled = false;
-        isButtonLocked = false;
-        countdownElement.textContent = "Click the button to watch the next ad!";
-      });
-    }
-
-    watchAdButton.onclick = () => {
-      if (!isButtonLocked) loadAd();
-    };
-
-    shareButton.onclick = () => {
-      const referralLink = "http://t.me/BUGminerbot";
-      navigator.clipboard.writeText(referralLink).then(() => {
-        alert("Referral link copied to clipboard: " + referralLink);
-      }).catch(() => {
-        alert("Failed to copy link. Please copy manually: " + referralLink);
+        isLocked=false;
+        watchAdBtn.disabled=false;
       });
     };
 
-    joinButton.onclick = () => {
-      window.open("https://t.me/+bKHfwO7GUUwxZTA1", "_blank");
+    document.getElementById("shareBtn").onclick = ()=>{
+      const link = "http://t.me/BUGminerbot";
+      navigator.clipboard.writeText(link).then(()=>alert("Referral link copied!"));
     };
 
-    if (adsWatched >= totalAdsRequired) {
-      showEmbeddedPlayer();
-      countdownElement.textContent = "Video unlocked!";
-      watchAdButton.disabled = true;
-    }
+    document.getElementById("joinBtn").onclick = ()=>window.open("https://t.me/+bKHfwO7GUUwxZTA1","_blank");
+
+    if(adsWatched >= totalAdsRequired) showVideo();
   </script>
 </body>
-  </html>
+</html>
