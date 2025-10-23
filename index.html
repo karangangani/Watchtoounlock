@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Watch Ads - Unlock Video</title>
+  <title>Watch Ads - Unlock Download</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+      background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
       color: #fff;
       padding: 1rem;
       display: flex;
@@ -16,6 +16,20 @@
       align-items: center;
       min-height: 100vh;
     }
+    .telegram-banner {
+      background: #00ff88;
+      color: #000;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 15px rgba(0,255,136,0.5);
+      transition: transform 0.2s;
+    }
+    .telegram-banner:hover { transform: scale(1.05); }
+
     .video-section {
       width: 100%;
       max-width: 900px;
@@ -48,101 +62,107 @@
     .btn:hover:not(:disabled){ background-color:#00cc70; transform:scale(1.03);}
     .btn:disabled { background-color:#555; cursor:not-allowed; opacity:0.6; }
     .countdown { text-align:center; color:#00ff88; margin-top:0.5rem;}
-    .player-wrap { display:none; margin-top:1rem; }
-    .player-iframe { width:100%; height:500px; border:0; border-radius:10px; }
-    @media (max-width:600px){ .player-iframe{ height:300px; } }
+    .download-wrap { display:none; margin-top:1rem; text-align:center; }
+    .note { text-align:center; color:#ccc; font-size:0.9rem; margin-top:8px; }
   </style>
 </head>
 <body>
 
-  <!-- VIDEO POST 1 -->
+  <a href="https://t.me/+bKHfwO7GUUwxZTA1" target="_blank" class="telegram-banner">
+    🔥 Join Our Official Telegram Channel 🔥
+  </a>
+
+  <!-- POST 1 -->
   <div class="video-section" id="video1">
     <h2>Post Number 1</h2>
     <button class="btn" id="adBtn1">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown1">Watch 3 ads to unlock this video</div>
-    <div class="player-wrap" id="player1">
-      <div style="position:relative; width:100%; height:0; padding-bottom:180.282%">
-        <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/jx54lx?" 
-        class="player-iframe"></iframe>
-      </div>
+    <div class="countdown" id="countdown1">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player1">
+      <button class="btn" id="redirectBtn1">🌐 Open in Chrome to Download</button>
+      <div class="note">(Download will start in your browser)</div>
     </div>
   </div>
 
-  <!-- VIDEO POST 2 -->
+  <!-- POST 2 -->
   <div class="video-section" id="video2">
     <h2>Post Number 2</h2>
     <button class="btn" id="adBtn2">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown2">Watch 3 ads to unlock this video</div>
-    <div class="player-wrap" id="player2">
-      <div style="position:relative; width:100%; height:0; padding-bottom:178.333%">
-        <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/5pk7wn?" 
-        class="player-iframe"></iframe>
-      </div>
+    <div class="countdown" id="countdown2">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player2">
+      <button class="btn" id="redirectBtn2">🌐 Open in Chrome to Download</button>
+      <div class="note">(Download will start in your browser)</div>
     </div>
   </div>
 
-  <!-- VIDEO POST 3 -->
+  <!-- POST 3 -->
   <div class="video-section" id="video3">
     <h2>Post Number 3</h2>
     <button class="btn" id="adBtn3">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown3">Watch 3 ads to unlock this video</div>
-    <div class="player-wrap" id="player3">
-      <div style="position:relative; width:100%; height:0; padding-bottom:222.222%">
-        <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/ycbc0p?" 
-        class="player-iframe"></iframe>
-      </div>
+    <div class="countdown" id="countdown3">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player3">
+      <button class="btn" id="redirectBtn3">🌐 Open in Chrome to Download</button>
+      <div class="note">(Download will start in your browser)</div>
     </div>
   </div>
 
-  <!-- VIDEO POST 4 -->
+  <!-- POST 4 -->
   <div class="video-section" id="video4">
     <h2>Post Number 4</h2>
     <button class="btn" id="adBtn4">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown4">Watch 3 ads to unlock this video</div>
-    <div class="player-wrap" id="player4">
-      <div style="position:relative; width:100%; height:0; padding-bottom:181.818%">
-        <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/owsuls?" 
-        class="player-iframe"></iframe>
-      </div>
+    <div class="countdown" id="countdown4">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player4">
+      <button class="btn" id="redirectBtn4">🌐 Open in Chrome to Download</button>
+      <div class="note">(Download will start in your browser)</div>
     </div>
   </div>
 
-  <!-- VIDEO POST 5 -->
+  <!-- POST 5 -->
   <div class="video-section" id="video5">
     <h2>Post Number 5</h2>
     <button class="btn" id="adBtn5">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown5">Watch 3 ads to unlock this video</div>
-    <div class="player-wrap" id="player5">
-      <div style="position:relative; width:100%; height:0; padding-bottom:179.775%">
-        <iframe allow="fullscreen" allowfullscreen src="https://streamable.com/e/es6mdj?" 
-        class="player-iframe"></iframe>
-      </div>
+    <div class="countdown" id="countdown5">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player5">
+      <button class="btn" id="redirectBtn5">🌐 Open in Chrome to Download</button>
+      <div class="note">(Download will start in your browser)</div>
     </div>
   </div>
 
+  <!-- Monetag / libtl SDK (kept same as before) -->
   <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+
   <script>
-    const totalAdsRequired = 3;
-    const countdownDuration = 2;
+    const totalAdsRequired = 5;
+    const countdownDuration = 10; // seconds between ads
+
+    // direct-drive links
+    const driveLinks = {
+      1: "https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51",
+      2: "https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1",
+      3: "https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_",
+      4: "https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J",
+      5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
+    };
 
     function setupVideoUnlock(videoId) {
       let adsWatched = 0;
       const adBtn = document.getElementById(`adBtn${videoId}`);
       const countdown = document.getElementById(`countdown${videoId}`);
-      const player = document.getElementById(`player${videoId}`);
+      const playerWrap = document.getElementById(`player${videoId}`);
+      const redirectBtn = document.getElementById(`redirectBtn${videoId}`);
       let isLocked = false;
-      let timer;
+      let timer = null;
 
-      function startCountdown() {
-        let timeLeft = countdownDuration;
+      function startCooldown() {
+        let t = countdownDuration;
         adBtn.disabled = true;
         isLocked = true;
-        countdown.textContent = `Next ad in: ${timeLeft} sec`;
+        countdown.textContent = `Next ad in: ${t}s`;
         timer = setInterval(() => {
-          timeLeft--;
-          countdown.textContent = `Next ad in: ${timeLeft} sec`;
-          if (timeLeft <= 0) {
+          t--;
+          countdown.textContent = `Next ad in: ${t}s`;
+          if (t <= 0) {
             clearInterval(timer);
+            timer = null;
             adBtn.disabled = false;
             isLocked = false;
             countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
@@ -150,27 +170,56 @@
         }, 1000);
       }
 
-      function rewardUser() {
+      function onAdSuccess() {
         adsWatched++;
         if (adsWatched >= totalAdsRequired) {
-          countdown.textContent = "🎉 Video Unlocked!";
-          player.style.display = "block";
+          countdown.textContent = "🎉 Download Unlocked!";
+          playerWrap.style.display = "block";
           adBtn.style.display = "none";
         } else {
           countdown.textContent = `Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} left.`;
-          startCountdown();
+          startCooldown();
         }
       }
 
+      // ad button: show rewarded interstitial (Monetag)
       adBtn.onclick = () => {
         if (isLocked) return;
-        show_9903296()
-          .then(() => rewardUser())
-          .catch(() => alert("Ad failed to load. Try again!"));
+        // Call the monetag SDK - using the snippet you provided
+        // show_9903296() returns a promise on success
+        try {
+          adBtn.disabled = true;
+          countdown.textContent = "⏳ Loading ad...";
+          show_9903296() // rewarded interstitial
+            .then(() => {
+              // SDK says ad was watched — reward user
+              onAdSuccess();
+            })
+            .catch((e) => {
+              // if ad failed, allow retry and show message
+              console.error("Ad error:", e);
+              alert("Ad failed to load or play. Try again.");
+              adBtn.disabled = false;
+              countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
+            });
+        } catch (err) {
+          console.error("SDK not available:", err);
+          alert("Ad SDK not available. Try opening in browser.");
+          adBtn.disabled = false;
+          countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
+        }
+      };
+
+      // redirect button opens external browser/tab
+      redirectBtn.onclick = () => {
+        const url = driveLinks[videoId];
+        // open in a new tab — in Telegram this will normally prompt to open external browser
+        window.open(url, '_blank');
       };
     }
 
-    [1, 2, 3, 4, 5].forEach(setupVideoUnlock);
+    // setup all posts
+    [1,2,3,4,5].forEach(setupVideoUnlock);
   </script>
 </body>
-</html>
+  </html>
