@@ -1,429 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Watch Ads - Unlock Videos (Referral + Firebase)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Watch Ads - Unlock Download</title>
   <style>
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0f0f0f,#2b2b2b);color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    .telegram-banner{background:#00ff88;color:#000;padding:.8rem 1.2rem;border-radius:10px;text-align:center;font-weight:700;text-decoration:none;margin-bottom:1rem;box-shadow:0 0 15px rgba(0,255,136,.4)}
-    .video-section{width:100%;max-width:900px;margin-bottom:1.25rem;background:rgba(255,255,255,.04);border-radius:12px;padding:1rem;box-shadow:0 0 10px rgba(0,0,0,.6)}
-    h2{text-align:center;color:#00ff88;margin-bottom:.5rem}
-    .btn{background:#00ff88;color:#000;padding:.8rem 1.5rem;border:none;border-radius:10px;font-weight:700;cursor:pointer;display:block;width:100%;max-width:400px;margin:.5rem auto;transition:all .2s}
-    .btn:hover:not(:disabled){background:#00cc70;transform:scale(1.02)}
-    .btn:disabled{background:#555;cursor:not-allowed;opacity:.6}
-    .countdown{text-align:center;color:#00ff88;margin-top:.5rem}
-    .download-wrap{display:none;margin-top:1rem;text-align:center}
-    .note{text-align:center;color:#ccc;font-size:.9rem;margin-top:8px}
-    .locked-overlay{text-align:center;padding:1.3rem;background:rgba(255,255,255,.04);border-radius:12px;box-shadow:0 0 12px rgba(0,255,136,.12);margin-top:1rem;display:none;max-width:900px}
-    .ref-box{background:rgba(0,0,0,.25);padding:.8rem;border-radius:8px;margin-top:.6rem}
-    .small{font-size:.9rem;color:#ddd}
-    .ref-link{background:#111;padding:.5rem;border-radius:6px;display:inline-block;margin-top:.5rem;cursor:pointer}
-    .status { font-size:0.95rem; color:#ccc; margin-top:8px; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
+      color: #fff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .telegram-banner {
+      background: #00ff88;
+      color: #000;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 15px rgba(0,255,136,0.5);
+      transition: transform 0.2s;
+    }
+    .telegram-banner:hover { transform: scale(1.05); }
+
+    .video-section {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 2rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    h2 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 0.5rem;
+    }
+    .btn {
+      background-color: #00ff88;
+      color: #000;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 0.5rem auto;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .btn:hover:not(:disabled){ background-color:#00cc70; transform:scale(1.03);}
+    .btn:disabled { background-color:#555; cursor:not-allowed; opacity:0.6; }
+    .countdown { text-align:center; color:#00ff88; margin-top:0.5rem;}
+    .download-wrap { display:none; margin-top:1rem; text-align:center; }
   </style>
 </head>
 <body>
 
-  <a class="telegram-banner" id="tg-banner" target="_blank">🔥 Join Our Official Telegram Channel 🔥</a>
+  <a href="https://t.me/+bKHfwO7GUUwxZTA1" target="_blank" class="telegram-banner">🔥 Join Our Official Telegram Channel 🔥</a>
 
-  <div id="videos-container"></div>
-
-  <div id="referralLock" class="locked-overlay" aria-hidden="true">
-    <h2>🔒 Videos Locked</h2>
-    <p id="refText">You watched 3 videos — to unlock the rest, refer <b>3 friends</b> using your referral link.</p>
-
-    <div class="ref-box">
-      <div class="small">Your referral link — share it with friends (Telegram):</div>
-      <div id="refLink" class="ref-link"></div>
-      <div class="small" style="margin-top:.5rem">When friends open the mini app via this link and confirm, it counts as 1 referral.</div>
-      <div class="status" id="refStatus"></div>
+  <!-- POST 1 -->
+  <div class="video-section" id="video1">
+    <h2>Post Number 1</h2>
+    <button class="btn" id="adBtn1">Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown1">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player1">
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51', '_blank')">⬇️ Download Now</button>
     </div>
-
-    <a id="verifyBtn" class="btn" target="_blank">🚀 Open Bot to Guide Friends</a>
-    <p class="note">After referrals reach 3, this page will auto-unlock (if you reopen the app).</p>
   </div>
 
-  <!-- Monetag / ad SDK (kept as-is) -->
+  <!-- POST 2 -->
+  <div class="video-section" id="video2">
+    <h2>Post Number 2</h2>
+    <button class="btn" id="adBtn2">Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown2">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player2">
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1', '_blank')">⬇️ Download Now</button>
+    </div>
+  </div>
+
+  <!-- POST 3 -->
+  <div class="video-section" id="video3">
+    <h2>Post Number 3</h2>
+    <button class="btn" id="adBtn3">Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown3">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player3">
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_', '_blank')">⬇️ Download Now</button>
+    </div>
+  </div>
+
+  <!-- POST 4 -->
+  <div class="video-section" id="video4">
+    <h2>Post Number 4</h2>
+    <button class="btn" id="adBtn4">Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown4">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player4">
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J', '_blank')">⬇️ Download Now</button>
+    </div>
+  </div>
+
+  <!-- POST 5 -->
+  <div class="video-section" id="video5">
+    <h2>Post Number 5</h2>
+    <button class="btn" id="adBtn5">Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown5">Watch 5 ads to unlock download</div>
+    <div class="download-wrap" id="player5">
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY', '_blank')">⬇️ Download Now</button>
+    </div>
+  </div>
+
   <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
-
-  <!-- Telegram WebApp SDK (for Telegram mini app) -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Firebase JS (modular via CDN) -->
-  <script type="module">
-    // Firebase imports (CDN modular)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-    import {
-      getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, increment, onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-    // === TERA FIREBASE CONFIG (jo tune diya tha) ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
-      authDomain: "watch2earn-d0126.firebaseapp.com",
-      projectId: "watch2earn-d0126",
-      storageBucket: "watch2earn-d0126.firebasestorage.app",
-      messagingSenderId: "841118979263",
-      appId: "1:841118979263:web:8dfdfdf60e30a8d875220a"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // === CONFIG & STATE ===
-    const BOT_USERNAME = 'BUGminerbot';
+  <script>
     const totalAdsRequired = 5;
     const countdownDuration = 10;
-    const totalVideos = 5; // demo — badha sakta hai
-    const driveLinks = {
-      1: "https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51",
-      2: "https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1",
-      3: "https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_",
-      4: "https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J",
-      5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
-    };
 
-    // DOM refs
-    const videosContainer = document.getElementById('videos-container');
-    const referralLock = document.getElementById('referralLock');
-    const refLinkElem = document.getElementById('refLink');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const tgBanner = document.getElementById('tg-banner');
-    const refStatus = document.getElementById('refStatus');
-
-    // persisted local
-    let videosWatchedLocal = parseInt(localStorage.getItem('videosWatched') || '0', 10);
-    let referralsVerifiedLocal = localStorage.getItem('referralsVerified') === 'true';
-
-    // telegram vars
-    let tgWebAppAvailable = !!window.Telegram?.WebApp;
-    let tgInit = null;
-    let userTelegramId = null; // numeric string or local id
-    let userDocRef = null;
-    let refParam = null; // if this page opened with ?ref=REF_xxx
-    let refDocRef = null; // Firestore ref for the referrer
-
-    // Try to read URL param ?ref or ?verified
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('ref')) refParam = urlParams.get('ref'); // format REF_<id>
-    if (urlParams.get('verified') === 'true' && urlParams.get('user')) {
-      // If someone opens with verified link from bot: set local
-      const verifiedFor = urlParams.get('user'); // REF_...
-      // we'll set localStorage if matches current user later after init
-      localStorage.setItem('pendingVerified', verifiedFor);
-    }
-
-    // banner to channel
-    tgBanner.href = 'https://t.me/+bKHfwO7GUUwxZTA1';
-
-    // Initialize Telegram WebApp (if in Telegram)
-    try {
-      if (tgWebAppAvailable) {
-        tgInit = window.Telegram.WebApp.initDataUnsafe || null;
-        if (tgInit && tgInit.user && tgInit.user.id) {
-          userTelegramId = String(tgInit.user.id);
-        }
-      }
-    } catch(e) {
-      console.warn('tg init error', e);
-    }
-
-    // If no Telegram id, create local fallback id
-    if (!userTelegramId) {
-      let localId = localStorage.getItem('localUserId');
-      if (!localId) {
-        localId = 'local_' + Math.random().toString(36).slice(2,9);
-        localStorage.setItem('localUserId', localId);
-      }
-      userTelegramId = localId;
-    }
-
-    // Firestore document refs
-    userDocRef = doc(db, 'users', userTelegramId.toString());
-
-    // Prepare referrer doc if refParam present
-    if (refParam) {
-      refDocRef = doc(db, 'referrers', refParam);
-    }
-
-    // Main init
-    (async function init() {
-      // 1) Ensure user doc exists
-      await ensureUserDoc();
-
-      // 2) If opened via referral param, try to claim
-      if (refParam) {
-        await tryClaimReferral(refParam);
-      }
-
-      // 3) Setup UI depending on verified state
-      const verified = await checkIfVerifiedForUser();
-      if (verified) {
-        localStorage.setItem('referralsVerified', 'true');
-        referralsVerifiedLocal = true;
-      }
-
-      // Show UI
-      if (referralsVerifiedLocal) {
-        showAllVideos();
-      } else {
-        if (videosWatchedLocal >= 3) {
-          showReferralLock();
-        } else {
-          showLimitedVideos();
-        }
-      }
-
-      // 4) If current user is also a referrer, listen for their referrer doc to update status live
-      const myRefId = 'REF_' + userTelegramId;
-      const myRefDoc = doc(db, 'referrers', myRefId);
-      onSnapshot(myRefDoc, snap => {
-        if (!snap.exists()) {
-          refStatus.textContent = 'Referrals: 0 / 3';
-          return;
-        }
-        const d = snap.data();
-        const count = d.referralsCount || 0;
-        refStatus.textContent = `Referrals: ${count} / 3`;
-        if (d.verified) {
-          // auto-unlock for referrer
-          localStorage.setItem('referralsVerified','true');
-          referralsVerifiedLocal = true;
-          referralLock.style.display = 'none';
-          videosContainer.innerHTML = '';
-          showAllVideos();
-        }
-      });
-    })();
-
-    // ===== Firestore helper functions =====
-    async function ensureUserDoc() {
-      const s = await getDoc(userDocRef);
-      const refCode = 'REF_' + userTelegramId;
-      if (!s.exists()) {
-        await setDoc(userDocRef, {
-          telegramId: userTelegramId,
-          referralCode: refCode,
-          referredBy: (refParam && refParam.startsWith('REF_')) ? refParam : null,
-          referralsDone: 0,
-          videosWatched: videosWatchedLocal || 0,
-          createdAt: new Date().toISOString()
-        });
-      } else {
-        // update local video count from server if available (keeps local/server in sync)
-        const data = s.data();
-        if (typeof data.videosWatched === 'number') {
-          videosWatchedLocal = data.videosWatched;
-          localStorage.setItem('videosWatched', videosWatchedLocal);
-        }
-      }
-
-      // prepare UI referral link for current user
-      const myRef = 'REF_' + userTelegramId;
-      const shareLink = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(myRef)}`;
-      refLinkElem.textContent = shareLink;
-      refLinkElem.onclick = () => {
-        navigator.clipboard?.writeText(shareLink).then(()=> {
-          alert('Referral link copied — share it with friends!');
-        }).catch(()=> window.open(shareLink,'_blank'));
-      };
-      verifyBtn.href = `https://t.me/${BOT_USERNAME}?start=REF_${userTelegramId}`;
-      verifyBtn.onclick = ()=> {
-        setTimeout(()=> alert('Bot opened — share the link with friends.'), 800);
-      };
-    }
-
-    // Try to claim referral (called when page opened with ?ref=REF_xxx)
-    async function tryClaimReferral(ref) {
-      try {
-        // Parse claimed referrer id
-        if (!ref || !ref.startsWith('REF_')) return;
-        const refOwnerId = ref.slice(4);
-
-        // Prevent self-referral
-        if (refOwnerId === userTelegramId) {
-          console.log('self-referral ignored');
-          return;
-        }
-
-        const refDoc = doc(db, 'referrers', ref);
-        // Use transaction: ensure unique claim (doc per claimer id)
-        await runTransaction(db, async (tx) => {
-          const rSnap = await tx.get(refDoc);
-          if (!rSnap.exists()) {
-            tx.set(refDoc, { ownerTelegramId: refOwnerId, code: ref, referralsCount: 0, verified: false, createdAt: new Date().toISOString() });
-          }
-          const claimDoc = doc(refDoc, 'claims', userTelegramId);
-          const claimSnap = await tx.get(claimDoc);
-          if (claimSnap.exists()) {
-            // already claimed, skip
-            console.log('already claimed before');
-            return;
-          }
-          // create claim and increment
-          tx.set(claimDoc, { claimedBy: userTelegramId, ts: new Date().toISOString() });
-          tx.update(refDoc, { referralsCount: increment(1) });
-        });
-
-        // After transaction, read updated count and if threshold reached, set verified
-        const after = await getDoc(refDoc);
-        const count = after.exists() ? (after.data().referralsCount || 0) : 0;
-        if (count >= 3) {
-          await updateDoc(refDoc, { verified: true });
-        }
-
-        // Also record this user's referredBy (if not set)
-        const uSnap = await getDoc(userDocRef);
-        if (uSnap.exists() && !uSnap.data().referredBy) {
-          await updateDoc(userDocRef, { referredBy: ref });
-        }
-
-        alert('Referral recorded — thank you!');
-      } catch (e) {
-        console.error('claim error', e);
-      }
-    }
-
-    // Check if this user has been verified (either by own ref doc or local flag)
-    async function checkIfVerifiedForUser() {
-      // check localStorage first
-      if (localStorage.getItem('referralsVerified') === 'true') return true;
-
-      // Check if there is a referrer doc for this user's REF_ (i.e. user is referrer)
-      const myRefId = 'REF_' + userTelegramId;
-      const myRefDoc = doc(db, 'referrers', myRefId);
-      const snap = await getDoc(myRefDoc);
-      if (snap.exists() && snap.data().verified) {
-        localStorage.setItem('referralsVerified', 'true');
-        return true;
-      }
-      return false;
-    }
-
-    // ===== UI functions (video sections + unlock logic) =====
-    function showAllVideos(){
-      videosContainer.innerHTML = '';
-      for(let i=1;i<=totalVideos;i++) createVideoSection(i);
-    }
-    function showLimitedVideos(){
-      videosContainer.innerHTML = '';
-      for(let i=1;i<=totalVideos;i++){
-        createVideoSection(i, (i <= 3));
-      }
-    }
-
-    function createVideoSection(videoId, isActive = true){
-      const section = document.createElement('div');
-      section.className = 'video-section';
-      section.innerHTML = `
-        <h2>Post Number ${videoId}</h2>
-        <button class="btn" id="adBtn${videoId}" ${!isActive?'disabled':''}>${isActive? 'Watch Ad to Unlock':'Locked'}</button>
-        <div class="countdown" id="countdown${videoId}">${isActive? 'Watch 5 ads to unlock download':'🔒 Locked until referral'}</div>
-        <div class="download-wrap" id="player${videoId}">
-          <button class="btn" id="redirectBtn${videoId}">🌐 Open in Chrome to Download</button>
-          <div class="note">(Download will start in your browser)</div>
-        </div>
-      `;
-      videosContainer.appendChild(section);
-      if (isActive) setupVideoUnlock(videoId);
-    }
-
-    function setupVideoUnlock(videoId){
+    function setupVideoUnlock(videoId) {
       let adsWatched = 0;
       const adBtn = document.getElementById(`adBtn${videoId}`);
       const countdown = document.getElementById(`countdown${videoId}`);
-      const playerWrap = document.getElementById(`player${videoId}`);
-      const redirectBtn = document.getElementById(`redirectBtn${videoId}`);
+      const player = document.getElementById(`player${videoId}`);
       let isLocked = false;
-      let timer = null;
+      let timer;
 
-      function startCooldown(){
-        let t = countdownDuration;
+      function startCountdown() {
+        let timeLeft = countdownDuration;
         adBtn.disabled = true;
         isLocked = true;
-        countdown.textContent = `Next ad in: ${t}s`;
-        timer = setInterval(()=>{
-          t--;
-          countdown.textContent = `Next ad in: ${t}s`;
-          if (t<=0){
+        countdown.textContent = `Next ad in: ${timeLeft}s`;
+        timer = setInterval(() => {
+          timeLeft--;
+          countdown.textContent = `Next ad in: ${timeLeft}s`;
+          if (timeLeft <= 0) {
             clearInterval(timer);
-            timer=null;
-            adBtn.disabled=false;
-            isLocked=false;
+            adBtn.disabled = false;
+            isLocked = false;
             countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
           }
-        },1000);
+        }, 1000);
       }
 
-      async function onAdSuccess(){
+      function rewardUser() {
         adsWatched++;
-        if (adsWatched >= totalAdsRequired){
+        if (adsWatched >= totalAdsRequired) {
           countdown.textContent = "🎉 Download Unlocked!";
-          playerWrap.style.display = 'block';
-          adBtn.style.display = 'none';
-          // increment user videosWatched in local and firestore
-          videosWatchedLocal++;
-          localStorage.setItem('videosWatched', videosWatchedLocal);
-          try { await updateDoc(userDocRef, { videosWatched: videosWatchedLocal }); } catch(e){ console.warn('update videosWatched failed', e); }
-
-          // if user reached 3 watched and not verified, show referral lock
-          if (videosWatchedLocal >= 3 && !(await checkIfVerifiedForUser())) {
-            showReferralLock();
-          }
+          player.style.display = "block";
+          adBtn.style.display = "none";
         } else {
-          countdown.textContent = `Ad ${adsWatched} watched! ${totalAdsRequired-adsWatched} left.`;
-          startCooldown();
+          countdown.textContent = `Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} left.`;
+          startCountdown();
         }
       }
 
-      adBtn.onclick = ()=>{
+      adBtn.onclick = () => {
         if (isLocked) return;
-        try {
-          adBtn.disabled = true;
-          countdown.textContent = "⏳ Loading ad...";
-          show_9903296().then(()=>{ onAdSuccess(); })
-            .catch(e=>{
-              console.error('Ad error',e);
-              alert('Ad failed to play. Try again.');
-              adBtn.disabled=false;
-            });
-        } catch(err){
-          console.error('SDK error',err);
-          alert('Ad SDK not available.');
-          adBtn.disabled=false;
-        }
-      };
-
-      redirectBtn.onclick = ()=>{
-        const url = driveLinks[videoId];
-        window.open(url,'_blank');
+        show_9903296()
+          .then(() => rewardUser())
+          .catch(() => alert("Ad failed to load. Try again!"));
       };
     }
 
-    // Show referral UI
-    function showReferralLock(){
-      referralLock.style.display = 'block';
-      // if user is referrer, status will be live via onSnapshot earlier
-      // show share link already set in ensureUserDoc()
-    }
-
-    // utility: run a fireStore transaction wrapper (since runTransaction imported)
-    async function runTransactionWrapper(dbRef, updateFn) {
-      // but we used runTransaction imported directly earlier
-    }
-
-    // expose unlockIfVerified to allow bot-open link to call this
-    window.unlockIfVerified = function(){
-      if (localStorage.getItem('referralsVerified') === 'true') {
-        referralLock.style.display = 'none';
-        videosContainer.innerHTML = '';
-        showAllVideos();
-      }
-    };
-
-    // call unlockIfVerified on load (small delay)
-    window.addEventListener('load', ()=> setTimeout(window.unlockIfVerified, 500));
+    [1, 2, 3, 4, 5].forEach(setupVideoUnlock);
   </script>
 </body>
 </html>
