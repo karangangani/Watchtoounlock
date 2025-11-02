@@ -3,21 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Watch2Earn - Videos + Referral</title>
+  <title>Watch2Earn - BUGminerbot</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
-    body { margin: 0; font-family: Arial; background: linear-gradient(135deg, #0f0f0f, #2b2b2b); color: #fff; padding: 1rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-    .telegram-banner { background: #00ff88; color: #000; padding: 0.8rem 1.2rem; border-radius: 10px; text-align: center; font-weight: bold; text-decoration: none; margin-bottom: 2rem; box-shadow: 0 0 15px rgba(0,255,136,0.5); }
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0f0f0f, #2b2b2b); color: #fff; padding: 1rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .telegram-banner { background: #00ff88; color: #000; padding: 0.8rem 1.2rem; border-radius: 10px; text-align: center; font-weight: bold; text-decoration: none; margin-bottom: 2rem; box-shadow: 0 0 15px rgba(0,255,136,0.5); transition: transform 0.2s; }
     .telegram-banner:hover { transform: scale(1.05); }
     .video-section { width: 100%; max-width: 900px; margin-bottom: 2rem; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
     h2 { text-align: center; color: #00ff88; margin-bottom: 0.5rem; }
-    .btn { background-color: #00ff88; color: #000; padding: 0.8rem 1.5rem; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; display: block; width: 100%; max-width: 400px; margin: 0.5rem auto; transition: transform 0.2s; }
+    .btn { background-color: #00ff88; color: #000; padding: 0.8rem 1.5rem; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; display: block; width: 100%; max-width: 400px; margin: 0.5rem auto; transition: transform 0.2s, background-color 0.3s; }
     .btn:hover:not(:disabled) { background-color:#00cc70; transform:scale(1.03); }
     .btn:disabled { background-color:#555; cursor:not-allowed; opacity:0.6; }
     .countdown { text-align:center; color:#00ff88; margin-top:0.5rem; font-size: 0.95rem; }
@@ -25,59 +23,65 @@
     .referral-status { font-size: 1rem; color: #ffcc00; margin: 10px 0; font-weight: bold; }
     .locked { color: #ff5555; font-weight: bold; }
     #loading { text-align: center; margin: 2rem; color: #aaa; }
+    #error { color: #ff5555; text-align: center; margin: 1rem; display: none; }
   </style>
 </head>
 <body>
 
-  <a href="https://t.me/+bKHfbO7GUUwxZTA1" target="_blank" class="telegram-banner">Join Our Channel</a>
+  <a href="https://t.me/+bKHfbO7GUUwxZTA1" target="_blank" class="telegram-banner">🔥 Join Our Official Telegram Channel 🔥</a>
 
   <div id="loading">Loading your data...</div>
+  <div id="error"></div>
   <div id="userInfo" style="display:none; margin-bottom:1rem;"></div>
   <div id="referralStats" class="referral-status" style="display:none;"></div>
 
-  <!-- Video Sections -->
+  <!-- POST 1 -->
   <div class="video-section" id="video1" style="display:none;">
     <h2>Post Number 1</h2>
     <button class="btn" id="adBtn1">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown1">Watch 2 ads</div>
+    <div class="countdown" id="countdown1">Watch 2 ads to unlock download</div>
     <div class="download-wrap" id="player1">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51', '_blank')">Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51', '_blank')">⬇️ Download Now</button>
     </div>
   </div>
 
+  <!-- POST 2 -->
   <div class="video-section" id="video2" style="display:none;">
     <h2>Post Number 2</h2>
     <button class="btn" id="adBtn2">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown2">Watch 2 ads</div>
+    <div class="countdown" id="countdown2">Watch 2 ads to unlock download</div>
     <div class="download-wrap" id="player2">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1', '_blank')">Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1', '_blank')">⬇️ Download Now</button>
     </div>
   </div>
 
+  <!-- POST 3 -->
   <div class="video-section" id="video3" style="display:none;">
     <h2>Post Number 3</h2>
     <button class="btn" id="adBtn3">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown3">Watch 2 ads</div>
+    <div class="countdown" id="countdown3">Watch 2 ads to unlock download</div>
     <div class="download-wrap" id="player3">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_', '_blank')">Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_', '_blank')">⬇️ Download Now</button>
     </div>
   </div>
 
+  <!-- POST 4 (Locked) -->
   <div class="video-section" id="video4" style="display:none;">
     <h2>Post Number 4 <span class="locked">(Need 3 Referrals)</span></h2>
     <button class="btn" id="adBtn4" disabled>Watch Ad to Unlock</button>
     <div class="countdown" id="countdown4">Need 3 Referrals</div>
     <div class="download-wrap" id="player4">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J', '_blank')">Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J', '_blank')">⬇️ Download Now</button>
     </div>
   </div>
 
+  <!-- POST 5 (Locked) -->
   <div class="video-section" id="video5" style="display:none;">
     <h2>Post Number 5 <span class="locked">(Need 3 Referrals)</span></h2>
     <button class="btn" id="adBtn5" disabled>Watch Ad to Unlock</button>
     <div class="countdown" id="countdown5">Need 3 Referrals</div>
     <div class="download-wrap" id="player5">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY', '_blank')">Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY', '_blank')">⬇️ Download Now</button>
     </div>
   </div>
 
@@ -87,7 +91,7 @@
   <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
 
   <script>
-    // === Firebase Config (तुम्हारा) ===
+    // Firebase Config (तुम्हारा)
     const firebaseConfig = {
       apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
       authDomain: "watch2earn-d0126.firebaseapp.com",
@@ -106,114 +110,147 @@
     const user = tg.initDataUnsafe.user;
     const startParam = tg.initDataUnsafe.start_param || '';
     const userId = user.id.toString();
-    const BOT_USERNAME = 'Watch2EarnBot'; // ← अपना Bot का @username डालो
+    const BOT_USERNAME = 'BUGminerbot';  // ← Bot name updated
 
     const TOTAL_ADS = 2;
-    const FREE_VIDEOS = 3;
     const REQUIRED_REFERRALS = 3;
 
     let currentUser = null;
 
-    // Start Auth
+    // Error Handler
+    function showError(msg) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').innerText = msg;
+      document.getElementById('error').style.display = 'block';
+    }
+
+    // Anonymous Auth
     auth.signInAnonymously()
-      .then(cred => {
+      .then((cred) => {
         currentUser = cred.user;
         initApp();
       })
-      .catch(err => {
-        document.getElementById('loading').innerText = 'Error: ' + err.message;
+      .catch((err) => {
+        showError('Auth Error: ' + err.message + '. Check Anonymous enabled in Firebase.');
       });
 
     async function initApp() {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('userInfo').innerText = `Hi ${user.first_name || 'User'}!`;
+      document.getElementById('userInfo').innerText = `Hi ${user.first_name || 'User'}! (@${user.username || 'No username'})`;
 
       const userRef = db.collection('users').doc(userId);
 
-      // Handle Referral
-      if (startParam && startParam.startsWith('ref_')) {
-        const referrerId = startParam.replace('ref_', '');
-        const userDoc = await userRef.get();
-
-        if (!userDoc.exists) {
-          await userRef.set({
-            referredBy: referrerId,
-            adsWatched: {},
-            unlockedVideos: [],
-            referrals: []
-          });
-
-          // Add to referrer
-          const referrerRef = db.collection('users').doc(referrerId);
-          await referrerRef.update({
-            referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-          });
-
-          tg.showAlert("Referral Successful! You can watch 3 free videos!");
-        }
-      }
-
-      // Load User Data
-      const doc = await userRef.get();
-      const data = doc.exists ? doc.data() : { adsWatched: {}, unlockedVideos: [], referrals: [] };
-      const referralCount = data.referrals ? data.referrals.length : 0;
-
-      // Update UI
-      document.getElementById('referralStats').style.display = 'block';
-      document.getElementById('referralStats').innerText = `Referrals: ${referralCount}/${REQUIRED_REFERRALS}`;
-
-      // Unlock videos 4 & 5
-      if (referralCount >= REQUIRED_REFERRALS) {
-        [4, 5].forEach(id => {
-          const section = document.getElementById(`video${id}`);
-          section.querySelector('button').disabled = false;
-          section.querySelector('.countdown').innerText = 'Watch 2 ads';
-          section.querySelector('.locked').style.display = 'none';
-        });
-      }
-
-      // Show videos
-      [1,2,3,4,5].forEach(id => document.getElementById(`video${id}`).style.display = 'block');
-
-      // Setup Ads
-      [1,2,3,4,5].forEach(id => {
-        const adBtn = document.getElementById(`adBtn${id}`);
-        const countdown = document.getElementById(`countdown${id}`);
-        const player = document.getElementById(`player${id}`);
-
-        let adsWatched = data.adsWatched[id] || 0;
-
-        if (adsWatched >= TOTAL_ADS) {
-          countdown.innerText = "Download Unlocked!";
-          player.style.display = "block";
-          adBtn.style.display = "none";
-        } else {
-          countdown.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
-        }
-
-        adBtn.onclick = () => {
-          if (adBtn.disabled) return;
-          show_9903296().then(async () => {
-            adsWatched++;
-            await userRef.update({ [`adsWatched.${id}`]: adsWatched });
-            if (adsWatched >= TOTAL_ADS) {
-              countdown.innerText = "Download Unlocked!";
-              player.style.display = "block";
-              adBtn.style.display = "none";
-            } else {
-              countdown.innerText = `Ad ${adsWatched}/${TOTAL_ADS} done`;
+      try {
+        // Handle Referral
+        if (startParam && startParam.startsWith('ref_') && !startParam.includes('already_referred')) {
+          const referrerId = startParam.replace('ref_', '');
+          const doc = await userRef.get();
+          if (!doc.exists) {
+            await userRef.set({
+              referredBy: referrerId,
+              adsWatched: {},
+              unlockedVideos: [],
+              referrals: []
+            });
+            // Add to referrer's referrals (if referrer exists)
+            try {
+              await db.collection('users').doc(referrerId).update({
+                referrals: firebase.firestore.FieldValue.arrayUnion(userId)
+              });
+              tg.showAlert('Referral Successful! You got 3 free videos. Share yours too!');
+            } catch (refErr) {
+              // Referrer not registered yet - ignore
             }
-          }).catch(() => alert("Ad failed. Try again!"));
-        };
-      });
+          } else {
+            tg.showAlert('Already registered! Share your link.');
+          }
+        }
 
-      // Share Button
-      document.getElementById('shareBtn').style.display = 'block';
-      document.getElementById('shareBtn').onclick = () => {
-        const link = `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
-        tg.shareUrl(link, "Join & get 3 free videos! Refer 3 friends to unlock more!");
-      };
+        // Load User Data
+        const doc = await userRef.get();
+        let data = doc.exists ? doc.data() : { adsWatched: {}, unlockedVideos: [], referrals: [] };
+        if (!doc.exists) {
+          await userRef.set(data);  // Create if not exists
+        }
+        const referralCount = data.referrals ? data.referrals.length : 0;
+
+        // Update UI
+        document.getElementById('referralStats').style.display = 'block';
+        document.getElementById('referralStats').innerText = `Referrals: ${referralCount}/${REQUIRED_REFERRALS} | Unlocked: ${data.unlockedVideos.length}/5`;
+
+        // Unlock locked videos if referrals enough
+        if (referralCount >= REQUIRED_REFERRALS) {
+          [4, 5].forEach(id => {
+            const section = document.getElementById(`video${id}`);
+            section.querySelector('button').disabled = false;
+            section.querySelector('.countdown').innerText = 'Watch 2 ads to unlock';
+            section.querySelector('.locked').style.display = 'none';
+          });
+        }
+
+        // Show all videos
+        [1,2,3,4,5].forEach(id => document.getElementById(`video${id}`).style.display = 'block');
+
+        // Setup Ads for Each Video
+        [1,2,3,4,5].forEach(id => {
+          const adBtn = document.getElementById(`adBtn${id}`);
+          const countdown = document.getElementById(`countdown${id}`);
+          const player = document.getElementById(`player${id}`);
+          let adsWatched = data.adsWatched[id] || 0;
+
+          if (adsWatched >= TOTAL_ADS) {
+            countdown.innerText = "🎉 Download Unlocked!";
+            player.style.display = "block";
+            adBtn.style.display = "none";
+            if (!data.unlockedVideos.includes(id)) {
+              data.unlockedVideos.push(id);
+              await userRef.update({ unlockedVideos: data.unlockedVideos });
+            }
+          } else {
+            countdown.innerText = `Ads watched: ${adsWatched}/${TOTAL_ADS}`;
+          }
+
+          adBtn.onclick = async () => {
+            if (adBtn.disabled) return;
+            adBtn.disabled = true;
+            try {
+              await show_9903296();
+              adsWatched++;
+              await userRef.update({ [`adsWatched.${id}`]: adsWatched });
+              if (adsWatched >= TOTAL_ADS) {
+                countdown.innerText = "🎉 Download Unlocked!";
+                player.style.display = "block";
+                adBtn.style.display = "none";
+                if (!data.unlockedVideos.includes(id)) {
+                  data.unlockedVideos.push(id);
+                  await userRef.update({ unlockedVideos: data.unlockedVideos });
+                }
+                tg.showAlert(`Post ${id} unlocked!`);
+              } else {
+                countdown.innerText = `Ads watched: ${adsWatched}/${TOTAL_ADS}`;
+                setTimeout(() => { adBtn.disabled = false; }, 5000);  // 5s cooldown
+              }
+              document.getElementById('referralStats').innerText = `Referrals: ${referralCount}/${REQUIRED_REFERRALS} | Unlocked: ${data.unlockedVideos.length}/5`;
+            } catch (adErr) {
+              alert('Ad failed to load. Try again!');
+              adBtn.disabled = false;
+            }
+          };
+        });
+
+        // Share Referral Button
+        document.getElementById('shareBtn').style.display = 'block';
+        document.getElementById('shareBtn').onclick = () => {
+          const refLink = `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
+          tg.shareUrl(refLink, "Join via my referral & unlock 3 free videos! After that, refer 3 friends for more. #BUGminerbot");
+          tg.showAlert('Referral link shared! Get 1 point per friend.');
+        };
+
+      } catch (error) {
+        showError('Firebase Error: ' + error.message + '. Check rules in Firestore.');
+        console.error('Init Error:', error);
+      }
     }
   </script>
 </body>
