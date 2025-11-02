@@ -4,78 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Watch Ads - Unlock Download</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
+      margin: 0; font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
-      color: #fff;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      color: #fff; padding: 1rem; display: flex; flex-direction: column;
+      align-items: center; min-height: 100vh;
     }
     .telegram-banner {
-      background: #00ff88;
-      color: #000;
-      padding: 0.8rem 1.2rem;
-      border-radius: 10px;
-      text-align: center;
-      font-weight: bold;
-      text-decoration: none;
-      margin-bottom: 2rem;
-      box-shadow: 0 0 15px rgba(0,255,136,0.5);
+      background: #00ff88; color: #000; padding: 0.8rem 1.2rem;
+      border-radius: 10px; text-align: center; font-weight: bold;
+      text-decoration: none; margin-bottom: 2rem; box-shadow: 0 0 15px rgba(0,255,136,0.5);
       transition: transform 0.2s;
     }
     .telegram-banner:hover { transform: scale(1.05); }
 
     .video-section {
-      width: 100%;
-      max-width: 900px;
-      margin-bottom: 2rem;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      width: 100%; max-width: 900px; margin-bottom: 2rem;
+      background: rgba(255,255,255,0.05); border-radius: 12px;
+      padding: 1rem; box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
-    h2 {
-      text-align: center;
-      color: #00ff88;
-      margin-bottom: 0.5rem;
-    }
+    h2 { text-align: center; color: #00ff88; margin-bottom: 0.5rem; }
     .btn {
-      background-color: #00ff88;
-      color: #000;
-      padding: 0.8rem 1.5rem;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      display: block;
-      width: 100%;
-      max-width: 400px;
-      margin: 0.5rem auto;
-      transition: transform 0.2s, background-color 0.3s;
+      background-color: #00ff88; color: #000; padding: 0.8rem 1.5rem;
+      border: none; border-radius: 10px; font-weight: bold; font-size: 1rem;
+      cursor: pointer; display: block; width: 100%; max-width: 400px;
+      margin: 0.5rem auto; transition: transform 0.2s, background-color 0.3s;
     }
     .btn:hover:not(:disabled){ background-color:#00cc70; transform:scale(1.03);}
     .btn:disabled { background-color:#555; cursor:not-allowed; opacity:0.6; }
     .countdown { text-align:center; color:#00ff88; margin-top:0.5rem;}
     .download-wrap { display:none; margin-top:1rem; text-align:center; }
+    .referral-status { font-size: 0.9rem; color: #ffcc00; margin: 10px 0; }
+    .locked { color: #ff5555; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <a href="https://t.me/+bKHfwO7GUUwxZTA1" target="_blank" class="telegram-banner">🔥 Join Our Official Telegram Channel 🔥</a>
+  <a href="https://t.me/+bKHfbO7GUUwxZTA1" target="_blank" class="telegram-banner">Join Our Official Telegram Channel</a>
+
+  <!-- User Info -->
+  <div id="userInfo" style="margin-bottom: 1rem; font-size: 1.1rem;"></div>
+  <div id="referralStats" class="referral-status"></div>
 
   <!-- POST 1 -->
   <div class="video-section" id="video1">
     <h2>Post Number 1</h2>
     <button class="btn" id="adBtn1">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown1">Watch 5 ads to unlock download</div>
+    <div class="countdown" id="countdown1">Watch 2 ads to unlock</div>
     <div class="download-wrap" id="player1">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51', '_blank')">⬇️ Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51', '_blank')">Download Now</button>
     </div>
   </div>
 
@@ -83,9 +62,9 @@
   <div class="video-section" id="video2">
     <h2>Post Number 2</h2>
     <button class="btn" id="adBtn2">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown2">Watch 5 ads to unlock download</div>
+    <div class="countdown" id="countdown2">Watch 2 ads to unlock</div>
     <div class="download-wrap" id="player2">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1', '_blank')">⬇️ Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1', '_blank')">Download Now</button>
     </div>
   </div>
 
@@ -93,83 +72,181 @@
   <div class="video-section" id="video3">
     <h2>Post Number 3</h2>
     <button class="btn" id="adBtn3">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown3">Watch 5 ads to unlock download</div>
+    <div class="countdown" id="countdown3">Watch 2 ads to unlock</div>
     <div class="download-wrap" id="player3">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_', '_blank')">⬇️ Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_', '_blank')">Download Now</button>
     </div>
   </div>
 
-  <!-- POST 4 -->
+  <!-- POST 4 (Referral Locked) -->
   <div class="video-section" id="video4">
-    <h2>Post Number 4</h2>
-    <button class="btn" id="adBtn4">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown4">Watch 5 ads to unlock download</div>
+    <h2>Post Number 4 <span class="locked">(Locked)</span></h2>
+    <button class="btn" id="adBtn4" disabled>Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown4">Need 3 Referrals</div>
     <div class="download-wrap" id="player4">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J', '_blank')">⬇️ Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J', '_blank')">Download Now</button>
     </div>
   </div>
 
-  <!-- POST 5 -->
+  <!-- POST 5 (Referral Locked) -->
   <div class="video-section" id="video5">
-    <h2>Post Number 5</h2>
-    <button class="btn" id="adBtn5">Watch Ad to Unlock</button>
-    <div class="countdown" id="countdown5">Watch 5 ads to unlock download</div>
+    <h2>Post Number 5 <span class="locked">(Locked)</span></h2>
+    <button class="btn" id="adBtn5" disabled>Watch Ad to Unlock</button>
+    <div class="countdown" id="countdown5">Need 3 Referrals</div>
     <div class="download-wrap" id="player5">
-      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY', '_blank')">⬇️ Download Now</button>
+      <button class="btn" onclick="window.open('https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY', '_blank')">Download Now</button>
     </div>
   </div>
 
-  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
-  <script>
-    const totalAdsRequired = 5;
-    const countdownDuration = 10;
+  <!-- Share Referral Button -->
+  <button class="btn" id="shareBtn" style="margin: 20px auto;">Share Referral Link</button>
 
-    function setupVideoUnlock(videoId) {
-      let adsWatched = 0;
+  <!-- Ad SDK -->
+  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    const user = tg.initDataUnsafe.user;
+    const startParam = tg.initDataUnsafe.start_param || '';
+    const userId = user.id;
+    const BOT_TOKEN = '8296138403:AAFgUBUbdPQo55eI3mxAZAuwWQiV1vgMvPw';
+    const BOT_USERNAME = 'your_video_bot'; // ← BotFather में @ से पहले का नाम डालो
+
+    const TOTAL_ADS_PER_VIDEO = 2;
+    const FREE_VIDEOS = 3;
+    const REQUIRED_REFERRALS = 3;
+
+    // Storage
+    const STORAGE = {
+      ads: `ads_${userId}`,
+      unlocked: `unlocked_${userId}`,
+      referrals: `refs_${userId}`,
+      referredBy: `refBy_${userId}`
+    };
+
+    let data = {
+      adsWatched: JSON.parse(localStorage.getItem(STORAGE.ads)) || {},
+      unlocked: JSON.parse(localStorage.getItem(STORAGE.unlocked)) || [],
+      referrals: JSON.parse(localStorage.getItem(STORAGE.referrals)) || [],
+      referredBy: localStorage.getItem(STORAGE.referredBy) || null
+    };
+
+    function save() {
+      localStorage.setItem(STORAGE.ads, JSON.stringify(data.adsWatched));
+      localStorage.setItem(STORAGE.unlocked, JSON.stringify(data.unlocked));
+      localStorage.setItem(STORAGE.referrals, JSON.stringify(data.referrals));
+      if (data.referredBy) localStorage.setItem(STORAGE.referredBy, data.referredBy);
+    }
+
+    // Handle Referral
+    if (startParam && startParam.startsWith('ref_') && !data.referredBy) {
+      const referrerId = startParam.replace('ref_', '');
+      data.referredBy = referrerId;
+
+      const refList = JSON.parse(localStorage.getItem(`refs_${referrerId}`)) || [];
+      if (!refList.includes(userId)) {
+        refList.push(userId);
+        localStorage.setItem(`refs_${referrerId}`, JSON.stringify(refList));
+      }
+      save();
+      tg.showAlert("Referral Successful! You can watch 3 free videos!");
+    }
+
+    // Update UI
+    function updateUI() {
+      document.getElementById('userInfo').innerText = `Hi ${user.first_name}!`;
+      const refCount = data.referrals.length;
+      document.getElementById('referralStats').innerText = 
+        `Referrals: ${refCount}/${REQUIRED_REFERRALS} | Unlocked: ${data.unlocked.length}/5`;
+
+      // Unlock videos 4 & 5 if referrals >= 3
+      if (refCount >= REQUIRED_REFERRALS) {
+        document.getElementById('adBtn4').disabled = false;
+        document.getElementById('adBtn5').disabled = false;
+        document.getElementById('countdown4').innerText = 'Watch 2 ads to unlock';
+        document.getElementById('countdown5').innerText = 'Watch 2 ads to unlock';
+        document.querySelector('#video4 h2 .locked').style.display = 'none';
+        document.querySelector('#video5 h2 .locked').style.display = 'none';
+      }
+    }
+
+    // Share Button
+    document.getElementById('shareBtn').onclick = () => {
+      const link = `https://t.me/${BOT_USERNAME}?startapp=ref_${userId}`;
+      tg.shareUrl(link, "Join and get 3 free videos! After that, refer 3 friends to unlock more!");
+    };
+
+    // Setup Each Video
+    function setupVideo(videoId) {
+      const isLocked = videoId > FREE_VIDEOS && data.referrals.length < REQUIRED_REFERRALS;
       const adBtn = document.getElementById(`adBtn${videoId}`);
       const countdown = document.getElementById(`countdown${videoId}`);
       const player = document.getElementById(`player${videoId}`);
-      let isLocked = false;
+
+      let adsWatched = data.adsWatched[videoId] || 0;
+      let isCounting = false;
       let timer;
 
-      function startCountdown() {
-        let timeLeft = countdownDuration;
+      function startCooldown() {
+        let timeLeft = 10;
+        isCounting = true;
         adBtn.disabled = true;
-        isLocked = true;
-        countdown.textContent = `Next ad in: ${timeLeft}s`;
+        countdown.innerText = `Next ad in: ${timeLeft}s`;
         timer = setInterval(() => {
           timeLeft--;
-          countdown.textContent = `Next ad in: ${timeLeft}s`;
+          countdown.innerText = `Next ad in: ${timeLeft}s`;
           if (timeLeft <= 0) {
             clearInterval(timer);
+            isCounting = false;
             adBtn.disabled = false;
-            isLocked = false;
-            countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
+            countdown.innerText = `Ads: ${adsWatched}/${TOTAL_ADS_PER_VIDEO}`;
           }
         }, 1000);
       }
 
-      function rewardUser() {
+      function reward() {
         adsWatched++;
-        if (adsWatched >= totalAdsRequired) {
-          countdown.textContent = "🎉 Download Unlocked!";
+        data.adsWatched[videoId] = adsWatched;
+        save();
+
+        if (adsWatched >= TOTAL_ADS_PER_VIDEO) {
+          countdown.innerText = "Download Unlocked!";
           player.style.display = "block";
           adBtn.style.display = "none";
+          if (!data.unlocked.includes(videoId)) {
+            data.unlocked.push(videoId);
+            save();
+          }
         } else {
-          countdown.textContent = `Ad ${adsWatched} watched! ${totalAdsRequired - adsWatched} left.`;
-          startCountdown();
+          countdown.innerText = `Ad ${adsWatched} done! ${TOTAL_ADS_PER_VIDEO - adsWatched} left.`;
+          startCooldown();
         }
+        updateUI();
+      }
+
+      // Initial State
+      if (adsWatched >= TOTAL_ADS_PER_VIDEO) {
+        countdown.innerText = "Download Unlocked!";
+        player.style.display = "block";
+        adBtn.style.display = "none";
+      } else if (isLocked) {
+        adBtn.disabled = true;
+        countdown.innerText = `Need ${REQUIRED_REFERRALS} Referrals`;
+      } else {
+        countdown.innerText = `Ads: ${adsWatched}/${TOTAL_ADS_PER_VIDEO}`;
       }
 
       adBtn.onclick = () => {
-        if (isLocked) return;
-        show_9903296()
-          .then(() => rewardUser())
-          .catch(() => alert("Ad failed to load. Try again!"));
+        if (isCounting || adBtn.disabled) return;
+        show_9903296().then(reward).catch(() => alert("Ad failed. Try again!"));
       };
     }
 
-    [1, 2, 3, 4, 5].forEach(setupVideoUnlock);
+    // Init
+    [1,2,3,4,5].forEach(setupVideo);
+    updateUI();
   </script>
 </body>
-</html>
+  </html>
