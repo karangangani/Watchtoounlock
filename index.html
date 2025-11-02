@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>BUGminerbot - Watch2Earn</title>
 
-  <!-- Telegram WebApp SDK (First) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -37,11 +34,9 @@
 
   <div id="videos-container"></div>
 
-  <!-- Monetag SDK -->
   <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
 
   <script>
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
       authDomain: "watch2earn-d0126.firebaseapp.com",
@@ -66,12 +61,11 @@
       5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
     };
 
-    // Telegram WebApp
     const tg = window.Telegram.WebApp;
     tg.ready();
     const user = tg.initDataUnsafe.user;
     const startParam = tg.initDataUnsafe.start_param || '';
-    const userId = user?.id?.toString() || 'guest_' + Date.now();
+    const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();  // Fixed
 
     function showError(msg) {
       document.getElementById('loading').style.display = 'none';
@@ -86,7 +80,7 @@
     async function initApp() {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('userInfo').innerText = `Hi ${user.first_name || 'User'}!`;
+      document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
       const userRef = db.collection('users').doc(userId);
 
@@ -96,25 +90,32 @@
         const doc = await userRef.get();
         if (!doc.exists) {
           await userRef.set({ adsWatched: {}, referrals: [], referredBy: referrerId });
-          await db.collection('users').doc(referrerId).update({
-            referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-          });
-          tg.showAlert('Referral Successful! You got 3 free videos!');
+          try {
+            await db.collection('users').doc(referrerId).update({
+              referrals: firebase.firestore.FieldValue.arrayUnion(userId)
+            });
+          } catch (e) { console.log('Referrer not found yet'); }
+          tg.showAlert('Referral Successful!');
         }
       }
 
       // Load Data
-      const doc = await userRef.get();
-      const data = doc.exists ? doc.data() : { adsWatched: {}, referrals: [] };
-      const refCount = data.referrals?.length || 0;
+      let data = { adsWatched: {}, referrals: [] };
+      try {
+        const doc = await userRef.get();
+        if (doc.exists) data = doc.data();
+      } catch (e) {
+        console.error('Read error:', e);
+      }
 
+      const refCount = data.referrals?.length || 0;
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
 
       // Create Videos
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
-        createVideo(i, data.adsWatched[i] || 0, isActive);
+        createVideo(i, data.adsWatched?.[i] || 0, isActive, userRef);
       }
 
       // Share Button
@@ -128,7 +129,7 @@
       document.body.appendChild(shareBtn);
     }
 
-    function createVideo(id, adsWatched, isActive) {
+    function createVideo(id, adsWatched, isActive, userRef) {
       const div = document.createElement('div');
       div.className = 'video';
       div.innerHTML = `
@@ -151,7 +152,7 @@
           try {
             await show_9903296();
             adsWatched++;
-            await db.collection('users').doc(userId).update({[`adsWatched.${id}`]: adsWatched});
+            await userRef.update({[`adsWatched.${id}`]: adsWatched});
             if (adsWatched >= TOTAL_ADS) {
               cnt.innerText = 'Unlocked!';
               dl.style.display = 'block';
@@ -159,8 +160,8 @@
             } else {
               cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
             }
-          } catch {
-            alert('Ad failed');
+          } catch (e) {
+            alert('Ad failed. Try again.');
           }
           btn.disabled = false;
         };
