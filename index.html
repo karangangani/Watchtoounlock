@@ -13,6 +13,8 @@
   <style>
     body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
     .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;}
+    .ref-link-box{background:rgba(0,255,136,0.2);padding:1rem;border-radius:12px;margin:1rem 0;width:100%;max-width:900px;text-align:center;}
+    .ref-link{color:#00ff88;font-weight:bold;font-size:1.1rem;cursor:pointer;}
     .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:100%;max-width:900px;}
     .btn{background:#00ff88;color:#000;border:none;padding:12px;border-radius:10px;margin:8px auto;width:90%;font-weight:bold;display:block;}
     .btn:disabled{background:#555;opacity:0.6;}
@@ -31,6 +33,13 @@
   <div id="error"></div>
   <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.2rem;"></div>
   <div id="refStats" class="ref" style="display:none;"></div>
+
+  <!-- Unique Referral Link (नीचे Channel के) -->
+  <div id="refLinkBox" class="ref-link-box" style="display:none;">
+    <div class="small">Your Unique Referral Link:</div>
+    <div id="refLink" class="ref-link"></div>
+    <div class="small" style="margin-top:8px;">Share this link — 3 friends join → Unlock Post 4 & 5!</div>
+  </div>
 
   <div id="videos-container"></div>
 
@@ -65,7 +74,7 @@
     tg.ready();
     const user = tg.initDataUnsafe.user;
     const startParam = tg.initDataUnsafe.start_param || '';
-    const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();  // Fixed
+    const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();
 
     function showError(msg) {
       document.getElementById('loading').style.display = 'none';
@@ -90,12 +99,10 @@
         const doc = await userRef.get();
         if (!doc.exists) {
           await userRef.set({ adsWatched: {}, referrals: [], referredBy: referrerId });
-          try {
-            await db.collection('users').doc(referrerId).update({
-              referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-            });
-          } catch (e) { console.log('Referrer not found yet'); }
-          tg.showAlert('Referral Successful!');
+          await db.collection('users').doc(referrerId).update({
+            referrals: firebase.firestore.FieldValue.arrayUnion(userId)
+          });
+          tg.showAlert('Referral Successful! You got 3 free videos!');
         }
       }
 
@@ -105,28 +112,26 @@
         const doc = await userRef.get();
         if (doc.exists) data = doc.data();
       } catch (e) {
-        console.error('Read error:', e);
+        await userRef.set({ adsWatched: {}, referrals: [] });
       }
 
       const refCount = data.referrals?.length || 0;
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
 
+      // Unique Referral Link (नीचे Channel के)
+      document.getElementById('refLinkBox').style.display = 'block';
+      const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
+      document.getElementById('refLink').innerText = refLink;
+      document.getElementById('refLink').onclick = () => {
+        navigator.clipboard.writeText(refLink).then(() => tg.showAlert('Link Copied! Share now.'));
+      };
+
       // Create Videos
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
         createVideo(i, data.adsWatched?.[i] || 0, isActive, userRef);
       }
-
-      // Share Button
-      const shareBtn = document.createElement('button');
-      shareBtn.className = 'btn';
-      shareBtn.textContent = 'Share Referral Link';
-      shareBtn.onclick = () => {
-        const link = `https://t.me/${BOT}?startapp=ref_${userId}`;
-        tg.shareUrl(link, 'Join & unlock 3 free videos!');
-      };
-      document.body.appendChild(shareBtn);
     }
 
     function createVideo(id, adsWatched, isActive, userRef) {
@@ -149,8 +154,15 @@
 
         btn.onclick = async () => {
           btn.disabled = true;
+          btn.innerText = 'Loading Ad...';
           try {
-            await show_9903296();
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => reject(new Error('Ad timeout')), 15000);
+              window.show_9903296 = () => {
+                clearTimeout(timeout);
+                resolve();
+              };
+            });
             adsWatched++;
             await userRef.update({[`adsWatched.${id}`]: adsWatched});
             if (adsWatched >= TOTAL_ADS) {
@@ -160,10 +172,13 @@
             } else {
               cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
             }
+            tg.showAlert('Ad counted! ' + adsWatched + '/2');
           } catch (e) {
-            alert('Ad failed. Try again.');
+            tg.showAlert('Ad failed. Try again.');
+            console.error(e);
           }
           btn.disabled = false;
+          btn.innerText = 'Watch Ad';
         };
       }
     }
