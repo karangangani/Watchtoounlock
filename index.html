@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>BUGminerbot</title>
+  <title>BUGminerbot - Watch2Earn</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -34,13 +34,13 @@
 
   <div id="refLinkBox" class="ref-link-box" style="display:none;">
     <div>Your Referral Link:</div>
-    <div id="refLink" class="ref-link"></div>
+    <div id="refLink" class="ref-link">Loading...</div>
     <div style="font-size:0.9rem;margin-top:8px;">Share → 3 Join → Unlock Post 4 & 5!</div>
   </div>
 
   <div id="videos-container"></div>
 
-  <!-- MONETAG - Telegram Mini App Special SDK -->
+  <!-- MONETAG OFFICIAL TELEGRAM MINI APP SDK 2025 -->
   <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
   <script>
@@ -87,6 +87,7 @@
       document.getElementById('userInfo').style.display = 'block';
       document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
+      // Referral Handling
       if (startParam && startParam.startsWith('ref_')) {
         const referrerId = startParam.replace('ref_', '');
         try {
@@ -96,11 +97,12 @@
             await db.collection('users').doc(referrerId).update({
               referrals: firebase.firestore.FieldValue.arrayUnion(userId)
             });
-            tg.showAlert('Referral Success!');
+            tg.showAlert('Referral Successful! +3 Videos Unlocked!');
           }
         } catch (e) {}
       }
 
+      // Load Data
       try {
         const doc = await userRef.get();
         if (doc.exists) localData = doc.data();
@@ -116,10 +118,10 @@
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
         navigator.clipboard.writeText(refLink);
-        tg.showAlert('Link Copied!');
+        tg.showAlert('Referral Link Copied!');
       };
 
-      // Videos
+      // Create Videos
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
         createVideo(i, localData.adsWatched?.[i] || 0, isActive);
@@ -131,7 +133,7 @@
       div.className = 'video';
       div.innerHTML = `
         <h3>Post ${id} ${!isActive ? '<span class="locked">(Need 3 Referrals)</span>' : ''}</h3>
-        <button class="btn" id="ad${id}" ${!isActive ? 'disabled' : ''}>Watch Ad</button>
+        <button class="btn" id="ad${id}" ${!isActive ? 'disabled' : ''}>Watch Ad & Unlock</button>
         <div class="count" id="c${id}">${adsWatched >= TOTAL_ADS ? 'Unlocked!' : `Ads: ${adsWatched}/${TOTAL_ADS}`}</div>
         <div id="d${id}" style="display:${adsWatched >= TOTAL_ADS ? 'block' : 'none'};margin-top:10px;">
           <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download Now</button>
@@ -150,24 +152,16 @@
         btn.innerText = 'Ad Loading...';
 
         try {
-          // MONETAG SPECIAL METHOD - 100% WORKING
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error("Timeout")), 30000);
-            window.show_9903296 = () => {
-              clearTimeout(timeout);
-              resolve();
-            };
-            // Trigger ad
-            if (window.show_9903296 && typeof window.show_9903296 === 'function') {
-              window.show_9903296();
-            } else {
-              reject(new Error("SDK not ready"));
-            }
-          });
+          // MONETAG REWARDED INTERSTITIAL - EXACT 2025 METHOD
+          await show_9903296();
 
+          // Success - Ad watched!
           adsWatched++;
           localData.adsWatched[id] = adsWatched;
-          if (userRef) await userRef.update({[`adsWatched.${id}`]: adsWatched});
+
+          if (userRef) {
+            await userRef.update({[`adsWatched.${id}`]: adsWatched});
+          }
 
           if (adsWatched >= TOTAL_ADS) {
             cnt.innerText = 'Unlocked!';
@@ -176,15 +170,16 @@
           } else {
             cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
           }
-          tg.showAlert(`Ad ${adsWatched}/2 Done!`);
 
-        } catch (e) {
-          console.error(e);
-          tg.showAlert('Ad Failed! Try Again After 10 Sec');
+          tg.showAlert(`Ad ${adsWatched}/2 Completed! Keep Going!`);
+
+        } catch (error) {
+          console.error("Ad failed:", error);
+          tg.showAlert('Ad Failed! Try Again in 10 Seconds');
         }
 
         btn.disabled = false;
-        btn.innerText = 'Watch Ad';
+        btn.innerText = 'Watch Ad & Unlock';
       };
     }
   </script>
