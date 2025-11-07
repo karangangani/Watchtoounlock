@@ -12,35 +12,35 @@
 
   <style>
     body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;}
-    .ref-link-box{background:rgba(0,255,136,0.2);padding:1rem;border-radius:12px;margin:1rem 0;width:100%;max-width:900px;text-align:center;}
-    .ref-link{color:#00ff88;font-weight:bold;font-size:1.1rem;cursor:pointer;}
-    .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:100%;max-width:900px;}
-    .btn{background:#00ff88;color:#000;border:none;padding:12px;border-radius:10px;margin:8px auto;width:90%;font-weight:bold;display:block;}
+    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;width:95%;}
+    .ref-link-box{background:rgba(0,255,136,0.2);border:2px solid #00ff88;padding:1rem;border-radius:12px;margin:1rem 0;width:95%;text-align:center;}
+    .ref-link{color:#00ff88;font-weight:bold;font-size:1.2rem;cursor:pointer;}
+    .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:95%;max-width:900px;}
+    .btn{background:#00ff88;color:#000;border:none;padding:14px;border-radius:10px;margin:10px auto;width:90%;font-weight:bold;display:block;font-size:1.1rem;}
     .btn:disabled{background:#555;opacity:0.6;}
-    .count{color:#00ff88;margin:8px 0;text-align:center;}
+    .count{color:#00ff88;margin:8px 0;text-align:center;font-size:1.1rem;}
     .locked{color:#ff5555;font-weight:bold;}
-    #loading{margin:2rem;text-align:center;}
-    .ref{color:#ffcc00;font-weight:bold;margin:10px 0;}
+    #loading{margin:2rem;text-align:center;font-size:1.3rem;}
+    .ref{color:#ffcc00;font-weight:bold;margin:10px 0;font-size:1.2rem;}
   </style>
 </head>
 <body>
 
   <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Telegram Channel</a>
 
-  <div id="loading">Loading...</div>
-  <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.2rem;"></div>
+  <div id="loading">Loading Your Videos...</div>
+  <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.4rem;font-weight:bold;"></div>
   <div id="refStats" class="ref" style="display:none;"></div>
 
   <div id="refLinkBox" class="ref-link-box" style="display:none;">
-    <div>Your Referral Link:</div>
+    <div>Your Unique Referral Link:</div>
     <div id="refLink" class="ref-link">Loading...</div>
-    <div style="font-size:0.9rem;margin-top:8px;">Share → 3 Join → Unlock Post 4 & 5!</div>
+    <div style="margin-top:8px;">Share → 3 Friends Join → Unlock Post 4 & 5!</div>
   </div>
 
   <div id="videos-container"></div>
 
-  <!-- MONETAG OFFICIAL TELEGRAM MINI APP SDK 2025 -->
+  <!-- MONETAG SDK -->
   <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
   <script>
@@ -75,7 +75,7 @@
     const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();
 
     let userRef = null;
-    let localData = { adsWatched: {}, referrals: [] };
+    let userData = { adsWatched: {}, referrals: [], unlockedVideos: [] }; // NEW: permanent unlock
 
     auth.signInAnonymously().then(() => {
       userRef = db.collection('users').doc(userId);
@@ -87,28 +87,37 @@
       document.getElementById('userInfo').style.display = 'block';
       document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
-      // Referral Handling
+      // Referral Handle
       if (startParam && startParam.startsWith('ref_')) {
         const referrerId = startParam.replace('ref_', '');
         try {
           const doc = await userRef.get();
           if (!doc.exists) {
-            await userRef.set({ adsWatched: {}, referrals: [], referredBy: referrerId });
+            await userRef.set({ adsWatched: {}, referrals: [], unlockedVideos: [], referredBy: referrerId }, { merge: true });
             await db.collection('users').doc(referrerId).update({
               referrals: firebase.firestore.FieldValue.arrayUnion(userId)
             });
-            tg.showAlert('Referral Successful! +3 Videos Unlocked!');
+            tg.showAlert('Referral Done! +3 Videos Free!');
           }
         } catch (e) {}
       }
 
-      // Load Data
+      // Load Data from Firebase
       try {
         const doc = await userRef.get();
-        if (doc.exists) localData = doc.data();
-      } catch (e) {}
+        if (doc.exists) {
+          userData = doc.data();
+          // Ensure arrays exist
+          userData.adsWatched = userData.adsWatched || {};
+          userData.referrals = userData.referrals || [];
+          userData.unlockedVideos = userData.unlockedVideos || [];
+        }
+      } catch (e) {
+        console.warn("Firebase offline mode");
+      }
 
-      const refCount = localData.referrals?.length || 0;
+      const refCount = userData.referrals.length;
+
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
 
@@ -118,30 +127,32 @@
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
         navigator.clipboard.writeText(refLink);
-        tg.showAlert('Referral Link Copied!');
+        tg.showAlert('Link Copied!');
       };
 
       // Create Videos
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
-        createVideo(i, localData.adsWatched?.[i] || 0, isActive);
+        const adsWatched = userData.adsWatched[i] || 0;
+        const isPermanentlyUnlocked = userData.unlockedVideos.includes(i);
+        createVideo(i, adsWatched, isActive, isPermanentlyUnlocked);
       }
     }
 
-    function createVideo(id, adsWatched, isActive) {
+    function createVideo(id, adsWatched, isActive, isPermanentlyUnlocked) {
       const div = document.createElement('div');
       div.className = 'video';
       div.innerHTML = `
-        <h3>Post ${id} ${!isActive ? '<span class="locked">(Need 3 Referrals)</span>' : ''}</h3>
-        <button class="btn" id="ad${id}" ${!isActive ? 'disabled' : ''}>Watch Ad & Unlock</button>
-        <div class="count" id="c${id}">${adsWatched >= TOTAL_ADS ? 'Unlocked!' : `Ads: ${adsWatched}/${TOTAL_ADS}`}</div>
-        <div id="d${id}" style="display:${adsWatched >= TOTAL_ADS ? 'block' : 'none'};margin-top:10px;">
-          <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download Now</button>
+        <h3>Post ${id} ${!isActive ? '<span class="locked">(Locked - Need 3 Referrals)</span>' : ''}</h3>
+        <button class="btn" id="ad${id}" ${(!isActive || isPermanentlyUnlocked) ? 'style="display:none;"' : ''}>Watch Ad & Unlock</button>
+        <div class="count" id="c${id}">${isPermanentlyUnlocked ? 'PERMANENTLY UNLOCKED' : (adsWatched >= TOTAL_ADS ? 'Unlocked!' : `Ads: ${adsWatched}/${TOTAL_ADS}`)}</div>
+        <div id="d${id}" style="display:${isPermanentlyUnlocked ? 'block' : (adsWatched >= TOTAL_ADS ? 'block' : 'none')};margin-top:10px;">
+          <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download Video Now</button>
         </div>
       `;
       document.getElementById('videos-container').appendChild(div);
 
-      if (!isActive) return;
+      if (!isActive || isPermanentlyUnlocked) return;
 
       const btn = document.getElementById(`ad${id}`);
       const cnt = document.getElementById(`c${id}`);
@@ -152,30 +163,33 @@
         btn.innerText = 'Ad Loading...';
 
         try {
-          // MONETAG REWARDED INTERSTITIAL - EXACT 2025 METHOD
           await show_9903296();
 
-          // Success - Ad watched!
           adsWatched++;
-          localData.adsWatched[id] = adsWatched;
-
-          if (userRef) {
-            await userRef.update({[`adsWatched.${id}`]: adsWatched});
-          }
+          userData.adsWatched[id] = adsWatched;
 
           if (adsWatched >= TOTAL_ADS) {
-            cnt.innerText = 'Unlocked!';
+            // PERMANENT UNLOCK
+            userData.unlockedVideos.push(id);
+            cnt.innerText = 'PERMANENTLY UNLOCKED';
             dl.style.display = 'block';
             btn.style.display = 'none';
           } else {
             cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
           }
 
-          tg.showAlert(`Ad ${adsWatched}/2 Completed! Keep Going!`);
+          tg.showAlert(`Ad ${adsWatched}/2 Done!`);
+
+          // Save to Firebase
+          if (userRef) {
+            await userRef.set({
+              adsWatched: userData.adsWatched,
+              unlockedVideos: userData.unlockedVideos
+            }, { merge: true });
+          }
 
         } catch (error) {
-          console.error("Ad failed:", error);
-          tg.showAlert('Ad Failed! Try Again in 10 Seconds');
+          tg.showAlert('Ad Failed! Try Again');
         }
 
         btn.disabled = false;
