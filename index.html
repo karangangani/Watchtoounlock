@@ -75,7 +75,7 @@
     const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();
 
     let userRef = null;
-    let userData = { adsWatched: {}, referrals: [], unlockedVideos: [] }; // NEW: permanent unlock
+    let userData = { referrals: [] };
 
     auth.signInAnonymously().then(() => {
       userRef = db.collection('users').doc(userId);
@@ -92,8 +92,8 @@
         const referrerId = startParam.replace('ref_', '');
         try {
           const doc = await userRef.get();
-          if (!doc.exists) {
-            await userRef.set({ adsWatched: {}, referrals: [], unlockedVideos: [], referredBy: referrerId }, { merge: true });
+          if (!doc.exists || !doc.data().referrals.includes(referrerId)) {
+            await userRef.set({ referrals: firebase.firestore.FieldValue.arrayUnion(referrerId) }, { merge: true });
             await db.collection('users').doc(referrerId).update({
               referrals: firebase.firestore.FieldValue.arrayUnion(userId)
             });
@@ -102,19 +102,12 @@
         } catch (e) {}
       }
 
-      // Load Data from Firebase
+      // Load referrals only
       try {
         const doc = await userRef.get();
-        if (doc.exists) {
-          userData = doc.data();
-          // Ensure arrays exist
-          userData.adsWatched = userData.adsWatched || {};
-          userData.referrals = userData.referrals || [];
-          userData.unlockedVideos = userData.unlockedVideos || [];
-        }
-      } catch (e) {
-        console.warn("Firebase offline mode");
-      }
+        if (doc.exists) userData = doc.data();
+        userData.referrals = userData.referrals || [];
+      } catch (e) {}
 
       const refCount = userData.referrals.length;
 
@@ -127,75 +120,77 @@
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
         navigator.clipboard.writeText(refLink);
-        tg.showAlert('Link Copied!');
+        tg.showAlert('Link Copied! Share Kar!');
       };
 
-      // Create Videos
+      // Create Videos - NO PERMANENT UNLOCK
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
-        const adsWatched = userData.adsWatched[i] || 0;
-        const isPermanentlyUnlocked = userData.unlockedVideos.includes(i);
-        createVideo(i, adsWatched, isActive, isPermanentlyUnlocked);
+        createVideo(i, isActive);
       }
     }
 
-    function createVideo(id, adsWatched, isActive, isPermanentlyUnlocked) {
+    function createVideo(id, isActive) {
       const div = document.createElement('div');
       div.className = 'video';
-      div.innerHTML = `
-        <h3>Post ${id} ${!isActive ? '<span class="locked">(Locked - Need 3 Referrals)</span>' : ''}</h3>
-        <button class="btn" id="ad${id}" ${(!isActive || isPermanentlyUnlocked) ? 'style="display:none;"' : ''}>Watch Ad & Unlock</button>
-        <div class="count" id="c${id}">${isPermanentlyUnlocked ? 'PERMANENTLY UNLOCKED' : (adsWatched >= TOTAL_ADS ? 'Unlocked!' : `Ads: ${adsWatched}/${TOTAL_ADS}`)}</div>
-        <div id="d${id}" style="display:${isPermanentlyUnlocked ? 'block' : (adsWatched >= TOTAL_ADS ? 'block' : 'none')};margin-top:10px;">
-          <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download Video Now</button>
-        </div>
-      `;
-      document.getElementById('videos-container').appendChild(div);
 
-      if (!isActive || isPermanentlyUnlocked) return;
+      if (!isActive) {
+        div.innerHTML = `
+          <h3>Post ${id} <span class="locked">(Need 3 Referrals)</span></h3>
+          <button class="btn" disabled>Locked</button>
+        `;
+      } else {
+        div.innerHTML = `
+          <h3>Post ${id}</h3>
+          <button class="btn" id="ad${id}">Watch 2 Ads & Get Link</button>
+          <div class="count" id="c${id}">Ready to Unlock</div>
+        `;
 
-      const btn = document.getElementById(`ad${id}`);
-      const cnt = document.getElementById(`c${id}`);
-      const dl = document.getElementById(`d${id}`);
+        const btn = div.querySelector(`#ad${id}`);
+        const cnt = div.querySelector(`#c${id}`);
 
-      btn.onclick = async () => {
-        btn.disabled = true;
-        btn.innerText = 'Ad Loading...';
+        btn.onclick = async () => {
+          btn.disabled = true;
+          btn.innerText = 'Ad 1/2 Loading...';
+          cnt.innerText = 'Watching Ad 1...';
 
-        try {
-          await show_9903296();
+          try {
+            // Ad 1
+            await show_9903296();
+            btn.innerText = 'Ad 2/2 Loading...';
+            cnt.innerText = 'Watching Ad 2...';
 
-          adsWatched++;
-          userData.adsWatched[id] = adsWatched;
+            // Ad 2
+            await show_9903296();
 
-          if (adsWatched >= TOTAL_ADS) {
-            // PERMANENT UNLOCK
-            userData.unlockedVideos.push(id);
-            cnt.innerText = 'PERMANENTLY UNLOCKED';
-            dl.style.display = 'block';
+            // SUCCESS - GIVE LINK
+            cnt.innerHTML = '<span style="color:#00ff88;font-weight:bold;">2 Ads Done! Link Opening...</span>';
             btn.style.display = 'none';
-          } else {
-            cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
+
+            // Open download link
+            window.open(driveLinks[id], '_blank');
+
+            // Reset after 3 seconds - PHIR SE ADS MAANGEGA
+            setTimeout(() => {
+              btn.style.display = 'block';
+              btn.innerText = 'Watch 2 Ads & Get Link';
+              btn.disabled = false;
+              cnt.innerText = 'Ready to Unlock';
+            }, 3000);
+
+            tg.showAlert('2 Ads Completed! Link Opened!');
+
+          } catch (e) {
+            tg.showAlert('Ad Failed! Try Again');
+            btn.disabled = false;
+            btn.innerText = 'Watch 2 Ads & Get Link';
+            cnt.innerText = 'Ready to Unlock';
           }
+        };
+      }
 
-          tg.showAlert(`Ad ${adsWatched}/2 Done!`);
-
-          // Save to Firebase
-          if (userRef) {
-            await userRef.set({
-              adsWatched: userData.adsWatched,
-              unlockedVideos: userData.unlockedVideos
-            }, { merge: true });
-          }
-
-        } catch (error) {
-          tg.showAlert('Ad Failed! Try Again');
-        }
-
-        btn.disabled = false;
-        btn.innerText = 'Watch Ad & Unlock';
-      };
+      document.getElementById('videos-container').appendChild(div);
     }
   </script>
 </body>
-</html>
+                                                         </html>
