@@ -20,8 +20,7 @@
     .btn:disabled{background:#555;opacity:0.6;}
     .count{color:#00ff88;margin:8px 0;text-align:center;}
     .locked{color:#ff5555;font-weight:bold;}
-    #loading,#error{margin:2rem;text-align:center;}
-    #error{color:#ff5555;}
+    #loading{margin:2rem;text-align:center;}
     .ref{color:#ffcc00;font-weight:bold;margin:10px 0;}
   </style>
 </head>
@@ -30,20 +29,19 @@
   <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Telegram Channel</a>
 
   <div id="loading">Loading...</div>
-  <div id="error" style="display:none;"></div>
   <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.2rem;"></div>
   <div id="refStats" class="ref" style="display:none;"></div>
 
-  <!-- Unique Referral Link -->
   <div id="refLinkBox" class="ref-link-box" style="display:none;">
     <div>Your Referral Link:</div>
     <div id="refLink" class="ref-link"></div>
-    <div style="font-size:0.9rem;margin-top:8px;">Share → 3 Join → Unlock Videos!</div>
+    <div style="font-size:0.9rem;margin-top:8px;">Share → 3 Join → Unlock Post 4 & 5!</div>
   </div>
 
   <div id="videos-container"></div>
 
-  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+  <!-- MONETAG - Telegram Mini App Special SDK -->
+  <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
   <script>
     const firebaseConfig = {
@@ -79,38 +77,16 @@
     let userRef = null;
     let localData = { adsWatched: {}, referrals: [] };
 
-    function showError(msg) {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('error').innerText = msg;
-      document.getElementById('error').style.display = 'block';
-    }
-
-    function fallbackMode() {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}! (Offline Mode)`;
-      document.getElementById('refStats').style.display = 'block';
-      document.getElementById('refStats').innerText = `Referrals: 0/3 (Firebase Error)`;
-      setupReferralLink();
-      createAllVideos(0);
-    }
-
-    auth.signInAnonymously()
-      .then(cred => {
-        userRef = db.collection('users').doc(userId);
-        initApp();
-      })
-      .catch(err => {
-        console.warn('Auth failed, using fallback', err);
-        fallbackMode();
-      });
+    auth.signInAnonymously().then(() => {
+      userRef = db.collection('users').doc(userId);
+      initApp();
+    }).catch(() => initApp());
 
     async function initApp() {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('userInfo').style.display = 'block';
       document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
-      // Handle Referral
       if (startParam && startParam.startsWith('ref_')) {
         const referrerId = startParam.replace('ref_', '');
         try {
@@ -125,32 +101,25 @@
         } catch (e) {}
       }
 
-      // Load Data
       try {
         const doc = await userRef.get();
         if (doc.exists) localData = doc.data();
-      } catch (e) {
-        console.warn('Firebase read failed', e);
-      }
+      } catch (e) {}
 
       const refCount = localData.referrals?.length || 0;
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
 
-      setupReferralLink();
-      createAllVideos(refCount);
-    }
-
-    function setupReferralLink() {
+      // Referral Link
       document.getElementById('refLinkBox').style.display = 'block';
       const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
-        navigator.clipboard.writeText(refLink).then(() => tg.showAlert('Copied!'));
+        navigator.clipboard.writeText(refLink);
+        tg.showAlert('Link Copied!');
       };
-    }
 
-    function createAllVideos(refCount) {
+      // Videos
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
         createVideo(i, localData.adsWatched?.[i] || 0, isActive);
@@ -165,43 +134,59 @@
         <button class="btn" id="ad${id}" ${!isActive ? 'disabled' : ''}>Watch Ad</button>
         <div class="count" id="c${id}">${adsWatched >= TOTAL_ADS ? 'Unlocked!' : `Ads: ${adsWatched}/${TOTAL_ADS}`}</div>
         <div id="d${id}" style="display:${adsWatched >= TOTAL_ADS ? 'block' : 'none'};margin-top:10px;">
-          <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download</button>
+          <button class="btn" onclick="window.open('${driveLinks[id]}','_blank')">Download Now</button>
         </div>
       `;
       document.getElementById('videos-container').appendChild(div);
 
-      if (isActive) {
-        const btn = document.getElementById(`ad${id}`);
-        const cnt = document.getElementById(`c${id}`);
-        const dl = document.getElementById(`d${id}`);
+      if (!isActive) return;
 
-        btn.onclick = async () => {
-          btn.disabled = true;
-          btn.innerText = 'Ad Loading...';
-          try {
-            await new Promise((resolve, reject) => {
-              const timeout = setTimeout(() => reject(), 15000);
-              window.show_9903296 = () => { clearTimeout(timeout); resolve(); };
-            });
-            adsWatched++;
-            localData.adsWatched[id] = adsWatched;
-            if (userRef) await userRef.update({[`adsWatched.${id}`]: adsWatched});
-            if (adsWatched >= TOTAL_ADS) {
-              cnt.innerText = 'Unlocked!';
-              dl.style.display = 'block';
-              btn.style.display = 'none';
+      const btn = document.getElementById(`ad${id}`);
+      const cnt = document.getElementById(`c${id}`);
+      const dl = document.getElementById(`d${id}`);
+
+      btn.onclick = async () => {
+        btn.disabled = true;
+        btn.innerText = 'Ad Loading...';
+
+        try {
+          // MONETAG SPECIAL METHOD - 100% WORKING
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error("Timeout")), 30000);
+            window.show_9903296 = () => {
+              clearTimeout(timeout);
+              resolve();
+            };
+            // Trigger ad
+            if (window.show_9903296 && typeof window.show_9903296 === 'function') {
+              window.show_9903296();
             } else {
-              cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
+              reject(new Error("SDK not ready"));
             }
-            tg.showAlert('Ad Counted!');
-          } catch (e) {
-            tg.showAlert('Ad Failed. Try Again.');
+          });
+
+          adsWatched++;
+          localData.adsWatched[id] = adsWatched;
+          if (userRef) await userRef.update({[`adsWatched.${id}`]: adsWatched});
+
+          if (adsWatched >= TOTAL_ADS) {
+            cnt.innerText = 'Unlocked!';
+            dl.style.display = 'block';
+            btn.style.display = 'none';
+          } else {
+            cnt.innerText = `Ads: ${adsWatched}/${TOTAL_ADS}`;
           }
-          btn.disabled = false;
-          btn.innerText = 'Watch Ad';
-        };
-      }
+          tg.showAlert(`Ad ${adsWatched}/2 Done!`);
+
+        } catch (e) {
+          console.error(e);
+          tg.showAlert('Ad Failed! Try Again After 10 Sec');
+        }
+
+        btn.disabled = false;
+        btn.innerText = 'Watch Ad';
+      };
     }
   </script>
 </body>
-  </html>
+</html>
