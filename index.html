@@ -1,1 +1,289 @@
-<html></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Watch Ads - Unlock Videos (Referral-ready)</title>
+  <style>
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0f0f0f,#2b2b2b);color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    .telegram-banner{background:#00ff88;color:#000;padding:.8rem 1.2rem;border-radius:10px;text-align:center;font-weight:700;text-decoration:none;margin-bottom:1rem;box-shadow:0 0 15px rgba(0,255,136,.4)}
+    .video-section{width:100%;max-width:900px;margin-bottom:1.25rem;background:rgba(255,255,255,.04);border-radius:12px;padding:1rem;box-shadow:0 0 10px rgba(0,0,0,.6)}
+    h2{text-align:center;color:#00ff88;margin-bottom:.5rem}
+    .btn{background:#00ff88;color:#000;padding:.8rem 1.5rem;border:none;border-radius:10px;font-weight:700;cursor:pointer;display:block;width:100%;max-width:400px;margin:.5rem auto;transition:all .2s}
+    .btn:hover:not(:disabled){background:#00cc70;transform:scale(1.02)}
+    .btn:disabled{background:#555;cursor:not-allowed;opacity:.6}
+    .countdown{text-align:center;color:#00ff88;margin-top:.5rem}
+    .download-wrap{display:none;margin-top:1rem;text-align:center}
+    .note{text-align:center;color:#ccc;font-size:.9rem;margin-top:8px}
+    .locked-overlay{text-align:center;padding:1.3rem;background:rgba(255,255,255,.04);border-radius:12px;box-shadow:0 0 12px rgba(0,255,136,.12);margin-top:1rem;display:none;max-width:900px}
+    .ref-box{background:rgba(0,0,0,.25);padding:.8rem;border-radius:8px;margin-top:.6rem}
+    .small{font-size:.9rem;color:#ddd}
+    .ref-link{background:#111;padding:.5rem;border-radius:6px;display:inline-block;margin-top:.5rem;cursor:pointer}
+  </style>
+</head>
+<body>
+
+  <a class="telegram-banner" id="tg-banner" target="_blank">🔥 Join Our Official Telegram Channel 🔥</a>
+
+  <div id="videos-container"></div>
+
+  <div id="referralLock" class="locked-overlay" aria-hidden="true">
+    <h2>🔒 Videos Locked</h2>
+    <p id="refText">You watched 3 videos — to unlock the rest, refer <b>3 friends</b> using your referral link.</p>
+
+    <div class="ref-box">
+      <div class="small">Your referral link — share it with friends (Telegram):</div>
+      <div id="refLink" class="ref-link"></div>
+      <div class="small" style="margin-top:.5rem">When friends open the mini app via this link and confirm, it counts as 1 referral.</div>
+    </div>
+
+    <a id="verifyBtn" class="btn" target="_blank">🚀 Verify Referrals on Telegram</a>
+    <p class="note">After bot verifies (bot will message you), reopen this mini app. If you see "Verified", videos will unlock.</p>
+  </div>
+
+  <!-- Monetag / ad SDK (kept as-is) -->
+  <script src='//libtl.com/sdk.js' data-zone='9903296' data-sdk='show_9903296'></script>
+
+  <script>
+  (function(){
+    // CONFIG
+    const BOT_USERNAME = 'BUGminerbot'; // WITHOUT @
+    const totalAdsRequired = 5;
+    const countdownDuration = 10;
+    const totalVideos = 5; // for demo; you can increase to 1000 in production
+    const driveLinks = {
+      1: "https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51",
+      2: "https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1",
+      3: "https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_",
+      4: "https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J",
+      5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
+    };
+
+    // DOM refs
+    const videosContainer = document.getElementById('videos-container');
+    const referralLock = document.getElementById('referralLock');
+    const refLinkElem = document.getElementById('refLink');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const tgBanner = document.getElementById('tg-banner');
+
+    // State persisted
+    let videosWatched = parseInt(localStorage.getItem('videosWatched') || '0', 10);
+    let referralsVerified = localStorage.getItem('referralsVerified') === 'true';
+    let userTelegramId = null;
+    let refUserId = null; // if this page opened with ?ref=REF_ID
+    let initDataUnsafe = null;
+    let tgWebAppAvailable = !!window.Telegram?.WebApp;
+
+    // Initialize Telegram WebApp if available
+    try {
+      if (tgWebAppAvailable) {
+        initDataUnsafe = window.Telegram.WebApp.initDataUnsafe || null;
+        if (initDataUnsafe && initDataUnsafe.user) {
+          userTelegramId = initDataUnsafe.user.id?.toString();
+        }
+      }
+    } catch(e){ console.warn('tg init error', e); }
+
+    // If URL contains ?ref=REF_xxx or ?verified=true&user=..., pick them up
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('ref')) {
+      refUserId = urlParams.get('ref');
+    }
+    if (urlParams.get('verified') === 'true' && urlParams.get('user')) {
+      const verifiedFor = urlParams.get('user'); // e.g. REF_12345
+      // Only accept verified for this user if matches
+      if (userTelegramId && verifiedFor === ('REF_' + userTelegramId)) {
+        localStorage.setItem('referralsVerified', 'true');
+        referralsVerified = true;
+      }
+    }
+
+    // banner link to channel (keeps previous link)
+    tgBanner.href = 'https://t.me/+bKHfwO7GUUwxZTA1';
+
+    // Build UI depending on state
+    if (referralsVerified) {
+      showAllVideos();
+    } else {
+      if (videosWatched >= 3) {
+        showReferralLock();
+      } else {
+        showLimitedVideos();
+      }
+    }
+
+    // Create sections
+    function showAllVideos(){
+      for(let i=1;i<=totalVideos;i++) createVideoSection(i);
+    }
+    function showLimitedVideos(){
+      for(let i=1;i<=totalVideos;i++){
+        createVideoSection(i, (i <= 3));
+      }
+    }
+
+    function createVideoSection(videoId, isActive = true){
+      const section = document.createElement('div');
+      section.className = 'video-section';
+      section.innerHTML = `
+        <h2>Post Number ${videoId}</h2>
+        <button class="btn" id="adBtn${videoId}" ${!isActive?'disabled':''}>${isActive? 'Watch Ad to Unlock':'Locked'}</button>
+        <div class="countdown" id="countdown${videoId}">${isActive? 'Watch 5 ads to unlock download':'🔒 Locked until referral'}</div>
+        <div class="download-wrap" id="player${videoId}">
+          <button class="btn" id="redirectBtn${videoId}">🌐 Open in Chrome to Download</button>
+          <div class="note">(Download will start in your browser)</div>
+        </div>
+      `;
+      videosContainer.appendChild(section);
+      if (isActive) setupVideoUnlock(videoId);
+    }
+
+    function setupVideoUnlock(videoId){
+      let adsWatched = 0;
+      const adBtn = document.getElementById(`adBtn${videoId}`);
+      const countdown = document.getElementById(`countdown${videoId}`);
+      const playerWrap = document.getElementById(`player${videoId}`);
+      const redirectBtn = document.getElementById(`redirectBtn${videoId}`);
+      let isLocked = false;
+      let timer = null;
+
+      function startCooldown(){
+        let t = countdownDuration;
+        adBtn.disabled = true;
+        isLocked = true;
+        countdown.textContent = `Next ad in: ${t}s`;
+        timer = setInterval(()=>{
+          t--;
+          countdown.textContent = `Next ad in: ${t}s`;
+          if (t<=0){
+            clearInterval(timer);
+            timer=null;
+            adBtn.disabled=false;
+            isLocked=false;
+            countdown.textContent = `Ads watched: ${adsWatched}/${totalAdsRequired}`;
+          }
+        },1000);
+      }
+
+      function onAdSuccess(){
+        adsWatched++;
+        if (adsWatched >= totalAdsRequired){
+          countdown.textContent = "🎉 Download Unlocked!";
+          playerWrap.style.display = 'block';
+          adBtn.style.display = 'none';
+          videosWatched++;
+          localStorage.setItem('videosWatched', videosWatched);
+          if (videosWatched >= 3 && !referralsVerified){
+            // show lock overlay
+            showReferralLock();
+          }
+        } else {
+          countdown.textContent = `Ad ${adsWatched} watched! ${totalAdsRequired-adsWatched} left.`;
+          startCooldown();
+        }
+      }
+
+      adBtn.onclick = ()=>{
+        if (isLocked) return;
+        try {
+          adBtn.disabled = true;
+          countdown.textContent = "⏳ Loading ad...";
+          show_9903296().then(()=>{ onAdSuccess(); })
+            .catch(e=>{
+              console.error('Ad error',e);
+              alert('Ad failed to play. Try again.');
+              adBtn.disabled=false;
+            });
+        } catch(err){
+          console.error('SDK error',err);
+          alert('Ad SDK not available.');
+          adBtn.disabled=false;
+        }
+      };
+
+      redirectBtn.onclick = ()=>{
+        const url = driveLinks[videoId];
+        window.open(url,'_blank');
+      };
+    }
+
+    // ========== Referral UI & logic =============
+    function showReferralLock(){
+      referralLock.style.display = 'block';
+      // prepare referral link for current user
+      // we create a code: REF_<tg_user_id> when we have telegram id
+      let code = null;
+      if (userTelegramId) {
+        code = 'REF_' + userTelegramId;
+        // The intended share flow:
+        // 1) Referrer shares: https://t.me/BUGminerbot?start=REF_<userTelegramId>
+        // 2) When a friend opens that and bot replies with mini app link including ?ref=REF_<userTelegramId>
+        // 3) Friend opens mini app with ?ref=REF_..., the app will sendData to bot to claim
+      } else {
+        // if we don't know tg id (rare in mini app), create a local random id
+        code = 'REF_local_' + (localStorage.getItem('localRef') || (Math.random().toString(36).slice(2,9)));
+        localStorage.setItem('localRef', code);
+      }
+
+      // Show the shareable telegram-start link (user shares this)
+      const shareLink = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(code)}`;
+      refLinkElem.textContent = shareLink;
+      refLinkElem.onclick = ()=> {
+        // copy to clipboard for convenience
+        navigator.clipboard?.writeText(shareLink).then(()=> {
+          alert('Referral link copied — share it with friends!');
+        }).catch(()=> {
+          window.open(shareLink, '_blank');
+        });
+      };
+
+      // verify button opens bot (user will interact with bot)
+      verifyBtn.href = `https://t.me/${BOT_USERNAME}?start=verify_${code}`;
+      verifyBtn.onclick = ()=> {
+        // open bot — bot should guide and later send the user the mini app verified link (see bot instructions below)
+        // also show small hint
+        setTimeout(()=> alert('Bot opened — follow its steps. After bot verifies, reopen this mini app to refresh unlock.'), 800);
+      };
+
+      // if the page was opened with ?ref=REF_xxx (i.e. new user following a shared link),
+      // send a claim to the bot so it can record the referral (bot must handle WebApp.sendData or a message)
+      if (refUserId && tgWebAppAvailable) {
+        try {
+          // send claim to your bot — bot must be implemented to handle this payload
+          const payload = {
+            type: 'referral_claim',
+            ref: refUserId,
+            from: userTelegramId || 'unknown',
+            ts: Date.now()
+          };
+          // sendData will be received by your bot (as a signed message)
+          window.Telegram.WebApp.sendData(JSON.stringify(payload));
+          // show a small message locally
+          console.log('Referral claim sent to bot:', payload);
+        } catch (e) {
+          console.warn('sendData failed', e);
+        }
+      } else if (refUserId) {
+        // if not in Telegram webapp, try to open bot start to notify
+        // open bot so user can continue flow
+        window.open(`https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(refUserId)}`, '_blank');
+      }
+    }
+
+    // Expose a simple "locked-check" global for bot to open mini app with ?verified=true&user=REF_xxx
+    // When the mini app opens with ?verified=true&user=REF_<id> we above set localStorage.referralsVerified = true
+    // so the user will see all videos unlocked.
+    window.unlockIfVerified = function(){
+      if (localStorage.getItem('referralsVerified') === 'true') {
+        referralLock.style.display = 'none';
+        videosContainer.innerHTML = '';
+        showAllVideos();
+      }
+    };
+
+    // Call unlockIfVerified on load in case bot already verified and user reopened
+    window.addEventListener('load', ()=> setTimeout(window.unlockIfVerified, 300));
+  })();
+  </script>
+</body>
+  </html>
