@@ -3,12 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>BUGminerbot - Watch2Earn v2.2</title>
+  <title>BUGminerbot - Watch2Earn v3.0</title>
 
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <!-- ADS -->
   <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
   <style>
@@ -42,6 +47,7 @@
 <div id="videos-container"></div>
 
 <script>
+/* ---------------- FIREBASE CONFIG ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
   authDomain: "watch2earn-d0126.firebaseapp.com",
@@ -55,6 +61,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+/* ---------------- CONSTANTS ---------------- */
 const BOT = "BUGminerbot";
 const REQUIRED_REFERRALS = 5;
 
@@ -66,28 +73,31 @@ const driveLinks = {
   5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
 };
 
+/* ---------------- TELEGRAM ---------------- */
 const tg = window.Telegram.WebApp;
 tg.ready();
 const user = tg.initDataUnsafe.user;
 const userId = user?.id?.toString();
-const startParam = tg.initDataUnsafe.start_param || "";
 
+/* ---------------- USER DATA INIT ---------------- */
 let userRef = null;
-let userData = { referrals: [], completed: [] };
+let userData = { referrals: [], completed: [], taps: {} };
 
 auth.signInAnonymously().then(() => {
   userRef = db.collection("users").doc(userId);
   initApp();
 }).catch(() => initApp());
 
+/* ---------------- INIT APP ---------------- */
 async function initApp() {
   document.getElementById("loading").style.display = "none";
 
-  // Load user data
   const doc = await userRef.get();
   if (doc.exists) userData = doc.data();
+
   userData.referrals ||= [];
   userData.completed ||= [];
+  userData.taps ||= {};
 
   document.getElementById("userInfo").innerText = `Hi ${user?.first_name}!`;
   document.getElementById("userInfo").style.display = "block";
@@ -107,15 +117,14 @@ async function initApp() {
   for (let i = 1; i <= 5; i++) {
     const unlocked = i <= 3 || userData.referrals.length >= REQUIRED_REFERRALS;
     const completed = userData.completed.includes(i);
-    createVideo(i, unlocked, completed);
+    const taps = userData.taps[i] || 0;
+
+    createVideo(i, unlocked, completed, taps);
   }
 }
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function createVideo(id, unlocked, completed) {
+/* ---------------- CREATE POST CARD ---------------- */
+function createVideo(id, unlocked, completed, taps) {
   const div = document.createElement("div");
   div.className = "video";
 
@@ -137,44 +146,39 @@ function createVideo(id, unlocked, completed) {
     div.innerHTML = `
       <h3>Post ${id}</h3>
       <button class="btn" id="ad${id}">Tap to Watch Ads</button>
-      <div class="count" id="c${id}">Need to watch 3 Ads</div>
+      <div class="count" id="c${id}">Tap Count: ${taps}/3</div>
     `;
 
     const btn = div.querySelector(`#ad${id}`);
     const cnt = div.querySelector(`#c${id}`);
 
     btn.onclick = async () => {
-      btn.disabled = true;
+      let count = userData.taps[id] || 0;
 
-      let watched = 0;
+      count++;
+      userData.taps[id] = count;
 
-      try {
-        for (let n = 1; n <= 3; n++) {
-          cnt.innerText = `Wait 5 seconds before Ad ${n}...`;
-          await delay(5000);
+      cnt.innerText = `Tap Count: ${count}/3`;
+      await userRef.update({ taps: userData.taps });
 
-          cnt.innerText = `Showing Ad ${n}...`;
-          btn.innerText = `Ad ${n}/3 Loading...`;
-          await show_9903296("pop");
-
-          watched = n;
-        }
-
-        cnt.innerHTML = '<span style="color:#00ff88;">Ads Completed! Opening Link...</span>';
-        btn.style.display = "none";
-
-        window.open(driveLinks[id], "_blank");
-
-        userRef.update({
-          completed: firebase.firestore.FieldValue.arrayUnion(id)
-        });
-
-      } catch (e) {
-        tg.showAlert("Ad failed! Try again.");
-        btn.disabled = false;
-        btn.innerText = "Tap to Watch Ads";
-        cnt.innerText = "Need to watch 3 Ads";
+      // Tap 1, Tap 2 → Only show ads
+      if (count < 3) {
+        await show_9903296("pop");
+        tg.showAlert(`Ad Shown (${count}/3). Now go back and tap again.`);
+        return;
       }
+
+      // Tap 3 → Unlock + Open link
+      await show_9903296("pop");
+
+      userRef.update({
+        completed: firebase.firestore.FieldValue.arrayUnion(id)
+      });
+
+      cnt.innerHTML = '<span style="color:#00ff88;">Ads Completed! Opening Link...</span>';
+      btn.style.display = "none";
+
+      window.open(driveLinks[id], "_blank");
     };
   }
 
