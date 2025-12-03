@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>BUGminerbot - Watch2Earn</title>
+  <title>BUGminerbot - Watch2Earn v2.2</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -73,7 +73,7 @@ const userId = user?.id?.toString();
 const startParam = tg.initDataUnsafe.start_param || "";
 
 let userRef = null;
-let userData = { referrals: [] };
+let userData = { referrals: [], completed: [] };
 
 auth.signInAnonymously().then(() => {
   userRef = db.collection("users").doc(userId);
@@ -82,46 +82,40 @@ auth.signInAnonymously().then(() => {
 
 async function initApp() {
   document.getElementById("loading").style.display = "none";
-  document.getElementById("userInfo").style.display = "block";
-  document.getElementById("userInfo").innerText = `Hi ${user?.first_name}!`;
-
-  // Referral Logic
-  if (startParam.startsWith("ref_")) {
-    const referrer = startParam.replace("ref_", "");
-
-    if (referrer !== userId) {
-      await db.collection("users").doc(referrer).update({
-        referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-      });
-    }
-  }
 
   // Load user data
   const doc = await userRef.get();
   if (doc.exists) userData = doc.data();
   userData.referrals ||= [];
+  userData.completed ||= [];
+
+  document.getElementById("userInfo").innerText = `Hi ${user?.first_name}!`;
+  document.getElementById("userInfo").style.display = "block";
 
   document.getElementById("refStats").style.display = "block";
   document.getElementById("refStats").innerText =
     `Referrals: ${userData.referrals.length}/${REQUIRED_REFERRALS}`;
 
-  // Referral Link
   const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
-  document.getElementById("refLinkBox").style.display = "block";
   document.getElementById("refLink").innerText = refLink;
+  document.getElementById("refLinkBox").style.display = "block";
   document.getElementById("refLink").onclick = () => {
     navigator.clipboard.writeText(refLink);
     tg.showAlert("Link Copied!");
   };
 
-  // Create 5 videos
   for (let i = 1; i <= 5; i++) {
     const unlocked = i <= 3 || userData.referrals.length >= REQUIRED_REFERRALS;
-    createVideo(i, unlocked);
+    const completed = userData.completed.includes(i);
+    createVideo(i, unlocked, completed);
   }
 }
 
-function createVideo(id, unlocked) {
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function createVideo(id, unlocked, completed) {
   const div = document.createElement("div");
   div.className = "video";
 
@@ -130,59 +124,56 @@ function createVideo(id, unlocked) {
       <h3>Post ${id} <span class="locked">(Locked — Need ${REQUIRED_REFERRALS} Referrals)</span></h3>
       <button class="btn" disabled>Locked</button>
     `;
-  } else {
+  }
+
+  else if (completed) {
     div.innerHTML = `
       <h3>Post ${id}</h3>
-      <button class="btn" id="ad${id}">Watch 3 Ads & Get Link</button>
-      <div class="count" id="c${id}">Ready to Unlock</div>
+      <div class="locked">Already Unlocked</div>
+    `;
+  }
+
+  else {
+    div.innerHTML = `
+      <h3>Post ${id}</h3>
+      <button class="btn" id="ad${id}">Tap to Watch Ads</button>
+      <div class="count" id="c${id}">Need to watch 3 Ads</div>
     `;
 
     const btn = div.querySelector(`#ad${id}`);
     const cnt = div.querySelector(`#c${id}`);
 
     btn.onclick = async () => {
+      btn.disabled = true;
+
       let watched = 0;
 
       try {
-        // AD 1
-        btn.disabled = true;
-        btn.innerText = "Ad 1/3 Loading...";
-        cnt.innerText = "Watching Ad 1...";
-        await show_9903296("pop");
-        watched = 1;
+        for (let n = 1; n <= 3; n++) {
+          cnt.innerText = `Wait 5 seconds before Ad ${n}...`;
+          await delay(5000);
 
-        // AD 2
-        btn.innerText = "Ad 2/3 Loading...";
-        cnt.innerText = "Watching Ad 2...";
-        await show_9903296("pop");
-        watched = 2;
+          cnt.innerText = `Showing Ad ${n}...`;
+          btn.innerText = `Ad ${n}/3 Loading...`;
+          await show_9903296("pop");
 
-        // AD 3
-        btn.innerText = "Ad 3/3 Loading...";
-        cnt.innerText = "Watching Ad 3...";
-        await show_9903296("pop");
-        watched = 3;
+          watched = n;
+        }
 
-        // SUCCESS
-        cnt.innerHTML = '<span style="color:#00ff88;">3 Ads Complete! Opening Link...</span>';
+        cnt.innerHTML = '<span style="color:#00ff88;">Ads Completed! Opening Link...</span>';
         btn.style.display = "none";
 
         window.open(driveLinks[id], "_blank");
 
-        setTimeout(() => {
-          btn.style.display = "block";
-          btn.disabled = false;
-          btn.innerText = "Watch 3 Ads & Get Link";
-          cnt.innerText = "Ready to Unlock";
-        }, 3000);
-
-        tg.showAlert("3 Ads Completed! Link Opened!");
+        userRef.update({
+          completed: firebase.firestore.FieldValue.arrayUnion(id)
+        });
 
       } catch (e) {
-        tg.showAlert(`Ad Failed at ${watched}/3`);
+        tg.showAlert("Ad failed! Try again.");
         btn.disabled = false;
-        btn.innerText = "Watch 3 Ads & Get Link";
-        cnt.innerText = "Ready to Unlock";
+        btn.innerText = "Tap to Watch Ads";
+        cnt.innerText = "Need to watch 3 Ads";
       }
     };
   }
