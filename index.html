@@ -8,55 +8,40 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-  <!-- New Ad Network - ExoClick Popunder (Best for Rewarded) -->
-  <script>
-    function showAd() {
-      return new Promise((resolve, reject) => {
-        try {
-          // ExoClick Popunder Zone (High Fill Rate + Rewarded Feel)
-          window.open('https://a.exoclick.com/popunder1000213.js', '_blank');
-          setTimeout(() => resolve(), 4000); // Assume user saw ad
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }
-  </script>
 
   <style>
-    body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;width:95%;}
-    .ref-link-box{background:rgba(0,255,136,0.2);border:2px solid #00ff88;padding:1rem;border-radius:12px;margin:1rem 0;width:95%;text-align:center;}
-    .ref-link{color:#00ff88;font-weight:bold;font-size:1.2rem;cursor:pointer;}
-    .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:95%;max-width:900px;}
-    .btn{background:#00ff88;color:#000;border:none;padding:16px;border-radius:12px;margin:10px auto;width:90%;font-weight:bold;display:block;font-size:1.2rem;cursor:pointer;}
-    .btn:disabled{background:#555;opacity:0.6;cursor:not-allowed;}
-    .count{color:#00ff88;margin:8px 0;text-align:center;font-size:1.1rem;}
+    body{margin:0;font-family:Arial;background:#000;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    .banner{background:#00ff88;color:#000;padding:1.2rem;border-radius:15px;font-weight:bold;margin:1rem auto 1.5rem;text-align:center;width:95%;max-width:500px;font-size:1.1rem;}
+    .ref-link-box{background:rgba(0,255,136,0.15);border:2px solid #00ff88;padding:1.2rem;border-radius:15px;margin:1rem 0;width:95%;text-align:center;}
+    .ref-link{color:#00ff88;font-weight:bold;font-size:1.3rem;cursor:pointer;}
+    .video{background:rgba(255,255,255,0.08);border-radius:15px;padding:1.3rem;margin:1rem 0;width:95%;max-width:900px;}
+    .btn{background:#00ff88;color:#000;border:none;padding:18px;border-radius:12px;margin:15px auto;width:90%;font-weight:bold;display:block;font-size:1.3rem;cursor:pointer;}
+    .btn:disabled{background:#333;opacity:0.6;}
+    .progress{color:#00ff88;font-size:1.4rem;font-weight:bold;text-align:center;margin:10px 0;}
+    .count{color:#aaa;font-size:1.1rem;text-align:center;}
     .locked{color:#ff5555;font-weight:bold;}
-    .progress{color:#ffcc00;font-size:1.3rem;font-weight:bold;}
-    #loading{margin:2rem;text-align:center;font-size:1.3rem;}
-    .ref{color:#ffcc00;font-weight:bold;margin:10px 0;font-size:1.2rem;}
+    #loading{margin:3rem;text-align:center;font-size:1.5rem;color:#00ff88;}
+    .ref{color:#ffcc00;font-weight:bold;margin:10px 0;font-size:1.3rem;text-align:center;}
   </style>
 </head>
 <body>
 
   <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Channel</a>
 
-  <div id="loading">Loading Your Videos...</div>
-  <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.4rem;font-weight:bold;"></div>
+  <div id="loading">Loading...</div>
+  <div id="userInfo" style="display:none;font-size:1.6rem;font-weight:bold;margin:1rem;"></div>
   <div id="refStats" class="ref" style="display:none;"></div>
 
   <div id="refLinkBox" class="ref-link-box" style="display:none;">
     <div>Your Referral Link:</div>
     <div id="refLink" class="ref-link">Loading...</div>
-    <div style="margin-top:8px;">Share → 5 Friends → Unlock All Videos!</div>
+    <div style="margin-top:10px;color:#aaa;">Share → 5 Friends = All Videos Free!</div>
   </div>
 
   <div id="videos-container"></div>
 
   <script>
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
       authDomain: "watch2earn-d0126.firebaseapp.com",
@@ -65,10 +50,11 @@
       messagingSenderId: "841118979263",
       appId: "1:841118979263:web:8dfdfdf60e30a8d875220a"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const BOT = 'BUGminerbot';
+    const BOT = "BUGminerbot";
     const REQUIRED_REFERRALS = 5;
 
     const driveLinks = {
@@ -82,130 +68,135 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+
     const user = tg.initDataUnsafe.user;
     const startParam = tg.initDataUnsafe.start_param || '';
     const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();
-    const username = user?.username ? '@' + user.username : user?.first_name || 'User';
 
-    let userRef = db.collection('users').doc(userId);
+    const userRef = db.collection('users').doc(userId);
 
-    // Save user on first open
+    // Save user data
     userRef.set({
-      username: username,
-      first_name: user?.first_name || '',
+      username: user?.username ? '@' + user.username : user?.first_name || 'User',
+      first_name: user?.first_name || 'User',
       lastSeen: new Date(),
       userId: userId
     }, { merge: true });
 
-    let userData = { referrals: [] };
+    // Popunder Ad
+    function showAd() {
+      return new Promise(resolve => {
+        window.open('https://a.exoclick.com/popunder1000213.js', '_blank');
+        setTimeout(resolve, 4000);
+      });
+    }
 
     async function initApp() {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
+      document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'Friend'}!`;
 
-      // Handle Referral
+      let refCount = 0;
+
+      // Referral handle
       if (startParam && startParam.startsWith('ref_')) {
         const referrerId = startParam.replace('ref_', '');
-        if (referrerId !== userId) {
-          const refDoc = await db.collection('users').doc(referrerId).get();
-          if (refDoc.exists) {
-            await userRef.update({
-              referrer: referrerId,
-              referredAt: new Date()
-            });
-            await db.collection('users').doc(referrerId).update({
+        if (referrerId !== userId && referrerId.length > 5) {
+          const referrerRef = db.collection('users').doc(referrerId);
+          const refSnap = await referrerRef.get();
+          if (refSnap.exists) {
+            await userRef.set({ referrer: referrerId }, { merge: true });
+            await referrerRef.update({
               referrals: firebase.firestore.FieldValue.arrayUnion(userId)
             });
-            tg.showAlert('Referral Successful! +3 Videos Unlocked!');
+            tg.showAlert('Referral Successful! 3 Videos Unlocked!');
           }
         }
       }
 
-      const doc = await userRef.get();
-      if (doc.exists) userData = doc.data();
-      userData.referrals = userData.referrals || [];
-
-      const refCount = userData.referrals.length;
+      // Get referral count
+      const snap = await userRef.get();
+      if (snap.exists) {
+        const data = snap.data();
+        refCount = (data.referrals?.length || 0);
+      }
 
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/5`;
 
-      document.getElementById('refLinkBox').style.display = 'block';
+      `;
+
+      // Correct referral link
       const refLink = `https://t.me/\( {BOT}?startapp=ref_ \){userId}`;
+      document.getElementById('refLinkBox').style.display = 'block';
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
         navigator.clipboard.writeText(refLink);
-        tg.showAlert('Referral Link Copied!');
+        tg.showAlert('Link Copied!');
       };
 
-      // Create Videos
+      // Create 5 videos
       for (let i = 1; i <= 5; i++) {
-        const unlocked = refCount >= REQUIRED_REFERRALS || i <= 3;
-        createVideoCard(i, unlocked);
+        const unlocked = refCount >= 5 || i <= 3;
+        createVideo(i, unlocked);
       }
     }
 
-    function createVideoCard(id, unlocked) {
+    function createVideo(id, unlocked) {
       const div = document.createElement('div');
       div.className = 'video';
 
       if (!unlocked) {
-        div.innerHTML = `
-          <h3>Video ${id} <span class="locked">(Need 5 Referrals)</span></h3>
-          <button class="btn" disabled>Locked</button>
-        `;
+        div.innerHTML = `<h3>Video ${id} <span class="locked">(Need 5 Referrals)</span></h3>
+          <button class="btn" disabled>Locked</button>`;
       } else {
         div.innerHTML = `
           <h3>Video ${id}</h3>
-          <div class="progress" id="progress${id}">Tap 3 Times to Watch Ads & Unlock</div>
-          <button class="btn" id="watch${id}">Watch 3 Ads → Get Video</button>
-          <div class="count" id="count${id}">0/3 Ads Watched</div>
-        `;
+          <div class="progress" id="p${id}">Tap 3 Times → Watch Ads → Get Video</div>
+          <button class="btn" id="b${id}">Watch 3 Ads to Unlock</button>
+          <div class="count" id="c${id}">0/3 Ads Done</div>`;
 
-        let adCount = 0;
-        const btn = div.querySelector(`#watch${id}`);
-        const progress = div.querySelector(`#progress${id}`);
-        const count = div.querySelector(`#count${id}`);
+        let count = 0;
+        const btn = div.querySelector(`#b${id}`);
+        const prog = div.querySelector(`#p${id}`);
+        const cnt = div.querySelector(`#c${id}`);
 
         btn.onclick = async () => {
-          if (adCount >= 3) {
+          if (count >= 3) {
             window.open(driveLinks[id], '_blank');
-            tg.showAlert('Video Opened! Enjoy!');
-            adCount = 0;
-            count.innerText = '0/3 Ads Watched';
-            progress.innerText = 'Tap 3 Times to Watch Ads & Unlock';
+            tg.showAlert('Enjoy the video!');
+            count = 0;
+            cnt.innerText = '0/3 Ads Done';
+            prog.innerText = 'Tap 3 Times → Watch Ads → Get Video';
+            btn.innerText = 'Watch 3 Ads to Unlock';
             return;
           }
 
           btn.disabled = true;
-          progress.innerText = `Ad ${adCount + 1}/3 Loading...`;
-          count.innerText = `${adCount + 1}/3 Ads Watched`;
+          prog.innerText = `Ad ${count+1}/3 Loading...`;
+          cnt.innerText = `${count+1}/3 Done`;
 
-          try {
-            await showAd();
-            adCount++;
-            count.innerText = `${adCount}/3 Ads Watched`;
+          await showAd();
+          count++;
+          cnt.innerText = `${count}/3 Done`;
 
-            if (adCount === 3) {
-              progress.innerHTML = '<span style="color:#00ff88;">All 3 Ads Done! Tap to Open Video</span>';
-              btn.innerText = 'Open Video Now';
-            } else {
-              progress.innerText = `Ad ${adCount + 1}/3 - Tap Again`;
-            }
-          } catch (e) {
-            tg.showAlert('Ad Failed! Try Again');
+          if (count === 3) {
+            prog.innerHTML = '<span style="color:#00ff88">All 3 Ads Done! Tap to Open Video</span>';
+            btn.innerText = 'OPEN VIDEO NOW';
+          } else {
+            prog.innerText = `Tap again for Ad ${count+1}/3`;
           }
-
           btn.disabled = false;
         };
       }
-
       document.getElementById('videos-container').appendChild(div);
     }
 
-    // Start App
-    initApp().catch(console.error);
+    // Start
+    initApp().catch(e => {
+      document.getElementById('loading').innerHTML = 'Error! Try again.';
+      console.error(e);
+    });
   </script>
 </body>
 </html>
