@@ -12,123 +12,186 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
-    body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center}
-    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-align:center;width:95%}
-    .bot-banner{background:#ff6b35;color:#fff;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-align:center;width:95%}
-    .ref-link-box{background:rgba(0,255,136,0.2);border:2px solid #00ff88;padding:1rem;border-radius:12px;margin:1rem 0;width:95%;text-align:center}
-    .ref-link{color:#00ff88;font-weight:bold;font-size:1.1rem;cursor:pointer}
-    .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:95%}
-    .btn{background:#00ff88;color:#000;border:none;padding:14px;border-radius:10px;margin:10px auto;width:90%;font-weight:bold;font-size:1.1rem}
-    .btn:disabled{background:#555}
-    .count{color:#00ff88;text-align:center}
-    .locked{color:#ff5555;font-weight:bold}
-    .ref{color:#ffcc00;font-weight:bold;font-size:1.2rem}
+    body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;width:95%;}
+    .ref-link-box{background:rgba(0,255,136,0.2);border:2px solid #00ff88;padding:1rem;border-radius:12px;margin:1rem 0;width:95%;text-align:center;}
+    .ref-link{color:#00ff88;font-weight:bold;font-size:1.2rem;cursor:pointer;}
+    .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:95%;max-width:900px;}
+    .btn{background:#00ff88;color:#000;border:none;padding:14px;border-radius:10px;margin:10px auto;width:90%;font-weight:bold;display:block;font-size:1.1rem;}
+    .btn:disabled{background:#555;opacity:0.6;}
+    .count{color:#00ff88;margin:8px 0;text-align:center;font-size:1.1rem;}
+    .locked{color:#ff5555;font-weight:bold;}
+    #loading{margin:2rem;text-align:center;font-size:1.3rem;}
+    .ref{color:#ffcc00;font-weight:bold;margin:10px 0;font-size:1.2rem;}
   </style>
 </head>
-
 <body>
 
-<a href="https://t.me/BUGminerbot" class="bot-banner" target="_blank">🚀 Start Bot Here @BUGminerbot</a>
-<a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Telegram Channel</a>
+  <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Telegram Channel</a>
 
-<div id="userInfo"></div>
-<div id="refStats" class="ref"></div>
+  <div id="loading">Loading Your Videos...</div>
+  <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.4rem;font-weight:bold;"></div>
+  <div id="refStats" class="ref" style="display:none;"></div>
 
-<div id="refLinkBox" class="ref-link-box">
-  <div>Your Unique Referral Link:</div>
-  <div id="refLink" class="ref-link"></div>
-  <div>Share → Friends Join → Unlock Post 4 & 5!</div>
-</div>
+  <div id="refLinkBox" class="ref-link-box" style="display:none;">
+    <div>Your Unique Referral Link:</div>
+    <div id="refLink" class="ref-link">Loading...</div>
+    <div style="margin-top:8px;">Share → Friends Join → Unlock Post 4 & 5!</div>
+  </div>
 
-<div id="videos-container"></div>
+  <div id="videos-container"></div>
 
-<script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
+  <!-- MONETAG SDK -->
+  <script src="//libtl.com/sdk.js" data-zone="9903296" data-sdk="show_9903296"></script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
-    authDomain: "watch2earn-d0126.firebaseapp.com",
-    projectId: "watch2earn-d0126"
-  };
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAghzdqVABzhmrGR3W6XiXsUMCH0Awuhcw",
+      authDomain: "watch2earn-d0126.firebaseapp.com",
+      projectId: "watch2earn-d0126",
+      storageBucket: "watch2earn-d0126.firebasestorage.app",
+      messagingSenderId: "841118979263",
+      appId: "1:841118979263:web:8dfdfdf60e30a8d875220a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  firebase.auth().signInAnonymously();
+    const BOT = 'BUGminerbot';
+    const TOTAL_ADS = 2;
+    const REQUIRED_REFERRALS = 5;
 
-  const BOT = "BUGminerbot";
-  const REQUIRED_REFERRALS = 5;
+    const driveLinks = {
+      1: "https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51",
+      2: "https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1",
+      3: "https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_",
+      4: "https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J",
+      5: "https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
+    };
 
-  const driveLinks = {
-    1:"https://drive.google.com/uc?export=download&id=190F4MriUa_w4Rf8o07eS8U4Ncvck2K51",
-    2:"https://drive.google.com/uc?export=download&id=1kJ4sjDWf61WplqPur2I3R48bTjkRsnN1",
-    3:"https://drive.google.com/uc?export=download&id=1ZCgEuAEq55aSAKKEVCKnskWVWP29eol_",
-    4:"https://drive.google.com/uc?export=download&id=1kPl_yU36ATVQQP8GkvziWlJwZMddy05J",
-    5:"https://drive.google.com/uc?export=download&id=1IxFE1NezW86UHPFs5IxL-YVT5nDUf_qY"
-  };
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    const user = tg.initDataUnsafe.user;
+    const startParam = tg.initDataUnsafe.start_param || '';
+    const userId = user?.id ? user.id.toString() : 'guest_' + Date.now();
 
-  const tg = window.Telegram.WebApp;
-  tg.ready();
+    let userRef = null;
+    let userData = { referrals: [] };
 
-  const user = tg.initDataUnsafe.user;
-  const startParam = tg.initDataUnsafe.start_param || "";
-  const userId = user.id.toString();
-  const userRef = db.collection("users").doc(userId);
+    auth.signInAnonymously().then(() => {
+      userRef = db.collection('users').doc(userId);
+      initApp();
+    }).catch(() => initApp());
 
-  document.getElementById("userInfo").innerText = `Hi ${user.first_name}!`;
+    async function initApp() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'block';
+      document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
-  async function init() {
-    const snap = await userRef.get();
-    if (!snap.exists) await userRef.set({ referrals: [] });
+      // Referral Handle
+      if (startParam && startParam.startsWith('ref_')) {
+        const referrerId = startParam.replace('ref_', '');
+        try {
+          const doc = await userRef.get();
+          if (!doc.exists || !doc.data().referrals.includes(referrerId)) {
+            await userRef.set({ referrals: firebase.firestore.FieldValue.arrayUnion(referrerId) }, { merge: true });
+            await db.collection('users').doc(referrerId).update({
+              referrals: firebase.firestore.FieldValue.arrayUnion(userId)
+            });
+            tg.showAlert('Referral Done! +3 Videos Free!');
+          }
+        } catch (e) {}
+      }
 
-    if (startParam.startsWith("ref_")) {
-      const refId = startParam.replace("ref_","");
-      if (refId !== userId) {
-        await db.collection("users").doc(refId).set({
-          referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-        },{merge:true});
+      // Load referrals only
+      try {
+        const doc = await userRef.get();
+        if (doc.exists) userData = doc.data();
+        userData.referrals = userData.referrals || [];
+      } catch (e) {}
+
+      const refCount = userData.referrals.length;
+
+      document.getElementById('refStats').style.display = 'block';
+      document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
+
+      // Referral Link
+      document.getElementById('refLinkBox').style.display = 'block';
+      const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
+      document.getElementById('refLink').innerText = refLink;
+      document.getElementById('refLink').onclick = () => {
+        navigator.clipboard.writeText(refLink);
+        tg.showAlert('Link Copied! Share Kar!');
+      };
+
+      // Create Videos - NO PERMANENT UNLOCK
+      for (let i = 1; i <= 5; i++) {
+        const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
+        createVideo(i, isActive);
       }
     }
 
-    const data = (await userRef.get()).data();
-    const refCount = data.referrals.length;
+    function createVideo(id, isActive) {
+      const div = document.createElement('div');
+      div.className = 'video';
 
-    document.getElementById("refStats").innerText =
-      `Referrals: (${refCount}/${REQUIRED_REFERRALS})`;
+      if (!isActive) {
+        div.innerHTML = `
+          <h3>Post ${id} <span class="locked">(Need 3 Referrals)</span></h3>
+          <button class="btn" disabled>Locked</button>
+        `;
+      } else {
+        div.innerHTML = `
+          <h3>Post ${id}</h3>
+          <button class="btn" id="ad${id}">Watch 2 Ads & Get Link</button>
+          <div class="count" id="c${id}">Ready to Unlock</div>
+        `;
 
-    const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
-    document.getElementById("refLink").innerText = refLink;
-    document.getElementById("refLink").onclick = () => {
-      navigator.clipboard.writeText(refLink);
-      tg.showAlert("Referral Link Copied!");
-    };
+        const btn = div.querySelector(`#ad${id}`);
+        const cnt = div.querySelector(`#c${id}`);
 
-    for(let i=1;i<=5;i++){
-      const active = i<=3 || refCount>=REQUIRED_REFERRALS;
-      createPost(i,active);
+        btn.onclick = async () => {
+          btn.disabled = true;
+          btn.innerText = 'Ad 1/2 Loading...';
+          cnt.innerText = 'Watching Ad 1...';
+
+          try {
+            // Ad 1
+            await show_9903296();
+            btn.innerText = 'Ad 2/2 Loading...';
+            cnt.innerText = 'Watching Ad 2...';
+
+            // Ad 2
+            await show_9903296();
+
+            // SUCCESS - GIVE LINK
+            cnt.innerHTML = '<span style="color:#00ff88;font-weight:bold;">2 Ads Done! Link Opening...</span>';
+            btn.style.display = 'none';
+
+            // Open download link
+            window.open(driveLinks[id], '_blank');
+
+            // Reset after 3 seconds - PHIR SE ADS MAANGEGA
+            setTimeout(() => {
+              btn.style.display = 'block';
+              btn.innerText = 'Watch 2 Ads & Get Link';
+              btn.disabled = false;
+              cnt.innerText = 'Ready to Unlock';
+            }, 3000);
+
+            tg.showAlert('2 Ads Completed! Link Opened!');
+
+          } catch (e) {
+            tg.showAlert('Ad Failed! Try Again');
+            btn.disabled = false;
+            btn.innerText = 'Watch 2 Ads & Get Link';
+            cnt.innerText = 'Ready to Unlock';
+          }
+        };
+      }
+
+      document.getElementById('videos-container').appendChild(div);
     }
-  }
-
-  function createPost(id,active){
-    const d=document.createElement("div");
-    d.className="video";
-
-    if(!active){
-      d.innerHTML=`<h3>Post ${id} <span class="locked">(Locked)</span></h3>
-      <button class="btn" disabled>Need Referrals</button>`;
-    }else{
-      d.innerHTML=`<h3>Post ${id}</h3>
-      <button class="btn">Watch 1 Ad & Get Link</button>
-      <div class="count">Ready to Unlock</div>`;
-
-      d.querySelector(".btn").onclick=async()=>{
-        await show_9903296("pop");
-        window.open(driveLinks[id],"_blank");
-      };
-    }
-    document.getElementById("videos-container").appendChild(d);
-  }
-
-  init();
-</script>
+  </script>
 </body>
 </html>
