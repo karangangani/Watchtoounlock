@@ -13,7 +13,7 @@
 
   <style>
     body{margin:0;font-family:Arial;background:#111;color:#fff;padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:1rem;text-decoration:none;display:block;text-align:center;width:95%;}
+    .banner{background:#00ff88;color:#000;padding:1rem;border-radius:12px;font-weight:bold;margin-bottom:0.7rem;text-decoration:none;display:block;text-align:center;width:95%;}
     .ref-link-box{background:rgba(0,255,136,0.2);border:2px solid #00ff88;padding:1rem;border-radius:12px;margin:1rem 0;width:95%;text-align:center;}
     .ref-link{color:#00ff88;font-weight:bold;font-size:1.2rem;cursor:pointer;}
     .video{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin:1rem 0;width:95%;max-width:900px;}
@@ -27,7 +27,15 @@
 </head>
 <body>
 
-  <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">Join Our Official Telegram Channel</a>
+  <!-- Join Channel -->
+  <a href="https://t.me/+bKHfwO7GUUwxZTA1" class="banner" target="_blank">
+    Join Our Official Telegram Channel
+  </a>
+
+  <!-- Start Bot Button (NEW) -->
+  <a href="https://t.me/BUGminerbot" class="banner" target="_blank">
+    Start BUGminerbot
+  </a>
 
   <div id="loading">Loading Your Videos...</div>
   <div id="userInfo" style="display:none;margin:1rem 0;font-size:1.4rem;font-weight:bold;"></div>
@@ -58,7 +66,6 @@
     const auth = firebase.auth();
 
     const BOT = 'BUGminerbot';
-    const TOTAL_ADS = 2;
     const REQUIRED_REFERRALS = 5;
 
     const driveLinks = {
@@ -88,22 +95,6 @@
       document.getElementById('userInfo').style.display = 'block';
       document.getElementById('userInfo').innerText = `Hi ${user?.first_name || 'User'}!`;
 
-      // Referral Handle
-      if (startParam && startParam.startsWith('ref_')) {
-        const referrerId = startParam.replace('ref_', '');
-        try {
-          const doc = await userRef.get();
-          if (!doc.exists || !doc.data().referrals.includes(referrerId)) {
-            await userRef.set({ referrals: firebase.firestore.FieldValue.arrayUnion(referrerId) }, { merge: true });
-            await db.collection('users').doc(referrerId).update({
-              referrals: firebase.firestore.FieldValue.arrayUnion(userId)
-            });
-            tg.showAlert('Referral Done! +3 Videos Free!');
-          }
-        } catch (e) {}
-      }
-
-      // Load referrals only
       try {
         const doc = await userRef.get();
         if (doc.exists) userData = doc.data();
@@ -111,20 +102,17 @@
       } catch (e) {}
 
       const refCount = userData.referrals.length;
-
       document.getElementById('refStats').style.display = 'block';
       document.getElementById('refStats').innerText = `Referrals: ${refCount}/${REQUIRED_REFERRALS}`;
 
-      // Referral Link
       document.getElementById('refLinkBox').style.display = 'block';
       const refLink = `https://t.me/${BOT}?startapp=ref_${userId}`;
       document.getElementById('refLink').innerText = refLink;
       document.getElementById('refLink').onclick = () => {
         navigator.clipboard.writeText(refLink);
-        tg.showAlert('Link Copied! Share Kar!');
+        tg.showAlert('Link Copied!');
       };
 
-      // Create Videos - NO PERMANENT UNLOCK
       for (let i = 1; i <= 5; i++) {
         const isActive = refCount >= REQUIRED_REFERRALS || i <= 3;
         createVideo(i, isActive);
@@ -137,7 +125,7 @@
 
       if (!isActive) {
         div.innerHTML = `
-          <h3>Post ${id} <span class="locked">(Need 3 Referrals)</span></h3>
+          <h3>Post ${id} <span class="locked">(Need 5 Referrals)</span></h3>
           <button class="btn" disabled>Locked</button>
         `;
       } else {
@@ -156,22 +144,18 @@
           cnt.innerText = 'Watching Ad 1...';
 
           try {
-            // Ad 1
-            await show_9903296();
+            await show_9903296('pop');
+
             btn.innerText = 'Ad 2/2 Loading...';
             cnt.innerText = 'Watching Ad 2...';
 
-            // Ad 2
-            await show_9903296();
+            await show_9903296('pop');
 
-            // SUCCESS - GIVE LINK
-            cnt.innerHTML = '<span style="color:#00ff88;font-weight:bold;">2 Ads Done! Link Opening...</span>';
+            cnt.innerHTML = '<b style="color:#00ff88">Ads Completed! Opening Link...</b>';
             btn.style.display = 'none';
 
-            // Open download link
             window.open(driveLinks[id], '_blank');
 
-            // Reset after 3 seconds - PHIR SE ADS MAANGEGA
             setTimeout(() => {
               btn.style.display = 'block';
               btn.innerText = 'Watch 2 Ads & Get Link';
@@ -179,13 +163,10 @@
               cnt.innerText = 'Ready to Unlock';
             }, 3000);
 
-            tg.showAlert('2 Ads Completed! Link Opened!');
-
           } catch (e) {
-            tg.showAlert('Ad Failed! Try Again');
             btn.disabled = false;
             btn.innerText = 'Watch 2 Ads & Get Link';
-            cnt.innerText = 'Ready to Unlock';
+            cnt.innerText = 'Ad Failed, Try Again';
           }
         };
       }
